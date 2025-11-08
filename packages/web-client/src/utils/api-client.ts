@@ -1,0 +1,71 @@
+import { FeatureFlagList } from "./mockData";
+import type {
+  FeatureFlag,
+  CheckFlagResponse,
+  CreateFlagRequest,
+  UpdateFlagRequest,
+} from "../types/types";
+
+export class FeatureFlagClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = "http://localhost:3000") {
+    this.baseUrl = baseUrl;
+  }
+
+  async listAllFlags(): Promise<FeatureFlag[]> {
+    // const response = await fetch(`${this.baseUrl}/flags`);
+
+    // if (!response.ok) {
+    //   throw new Error(`Failed to fetch flags: ${response.statusText}`);
+    // }
+
+    // return response.json();
+    return FeatureFlagList.map((flag) => ({...flag, name: flag.name + new Date().toISOString() }))
+  }
+
+  async createFlag(flagData: CreateFlagRequest) {
+    // const response = await fetch(`${this.baseUrl}/flags`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(flagData),
+    // });
+
+    // if (!response.ok) {
+    //   throw new Error(`Failed to create flag: ${response.statusText}`);
+    // }
+  }
+
+  async updateFlag(
+    id: string,
+    flagData: UpdateFlagRequest
+  ){
+    // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
+    //   method: "PUT",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(flagData),
+    // });
+
+    // if (!response.ok) {
+    //   throw new Error(`Failed to update flag: ${response.statusText}`);
+    // }
+  }
+
+  async deleteFlag(id: string): Promise<void> {
+    // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
+    //   method: "DELETE",
+    // });
+
+    // if (!response.ok) {
+    //   throw new Error(`Failed to delete flag: ${response.statusText}`);
+    // }
+  }
+
+  async toggleFlag(id: string, currentStatus: boolean) {
+    this.updateFlag(id, { status: !currentStatus });
+  }
+}

@@ -1,11 +1,9 @@
 import add from './assets/add-square.svg';
-import FeatureFlagItem from "./components/FeatureFlagItem/FeatureFlagItem";
+import FeatureFlagList from './components/FeatureFlagList/FeatureFlagList';
 import Header from "./components/Header/Header";
-import useListFeatureFlags from "./hooks/useListFeatureFlags";
 
 export default function App() {
 
-  const featureFlags = useListFeatureFlags();
 
   return (
     <div className="min-h-dvh flex flex-col items-center">
@@ -16,11 +14,7 @@ export default function App() {
           <img src={add} alt="add feature flag" className='cursor-pointer' />
         </div>
         <hr className="border-gray-200" />
-        <ul className=" flex flex-col gap-5 mt-5">
-          {featureFlags.map(flag =>
-            <FeatureFlagItem key={flag.id} name={flag.name} description={flag.description} value={flag.value} />
-          )}
-        </ul>
+        <FeatureFlagList />
       </main>
     </div>
   )
