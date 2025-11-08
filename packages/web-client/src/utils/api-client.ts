@@ -9,7 +9,10 @@ import type {
 export class FeatureFlagClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = "http://localhost:3000") {
+  constructor() {
+    const baseUrl =
+      import.meta.env.VITE_SERVER_BASE_URL || "http://localhost:3000";
+
     this.baseUrl = baseUrl;
   }
 
@@ -21,7 +24,10 @@ export class FeatureFlagClient {
     // }
 
     // return response.json();
-    return FeatureFlagList.map((flag) => ({...flag, name: flag.name + new Date().toISOString() }))
+    return FeatureFlagList.map((flag) => ({
+      ...flag,
+      name: flag.name + new Date().toISOString(),
+    }));
   }
 
   async createFlag(flagData: CreateFlagRequest) {
@@ -32,16 +38,12 @@ export class FeatureFlagClient {
     //   },
     //   body: JSON.stringify(flagData),
     // });
-
     // if (!response.ok) {
     //   throw new Error(`Failed to create flag: ${response.statusText}`);
     // }
   }
 
-  async updateFlag(
-    id: string,
-    flagData: UpdateFlagRequest
-  ){
+  async updateFlag(id: string, flagData: UpdateFlagRequest) {
     // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
     //   method: "PUT",
     //   headers: {
@@ -49,7 +51,6 @@ export class FeatureFlagClient {
     //   },
     //   body: JSON.stringify(flagData),
     // });
-
     // if (!response.ok) {
     //   throw new Error(`Failed to update flag: ${response.statusText}`);
     // }
@@ -59,7 +60,6 @@ export class FeatureFlagClient {
     // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
     //   method: "DELETE",
     // });
-
     // if (!response.ok) {
     //   throw new Error(`Failed to delete flag: ${response.statusText}`);
     // }
