@@ -3,7 +3,7 @@ import FeatureFlagItem from "./FeatureFlagItem/FeatureFlagItem";
 
 
 export default function FeatureFlagList() {
-    const {data, deleteFlag, toggleFlag} = useFeatureFlags();
+    const { data, deleteFlag, toggleFlag } = useFeatureFlags();
 
     return (
         <ul className=" flex flex-col gap-5 mt-5">

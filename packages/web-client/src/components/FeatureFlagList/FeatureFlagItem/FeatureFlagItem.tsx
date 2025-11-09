@@ -2,6 +2,7 @@ import deleteIcon from '../../../assets/delete.svg';
 import edit from '../../../assets/edit.svg';
 import toggleOff from '../../../assets/toggle-off.svg';
 import toggleOn from '../../../assets/toggle-on.svg';
+import Modal from '../../Modal/Modal';
 
 type FeatureFlagItemProps = {
     id: number,
@@ -24,7 +25,9 @@ export default function FeatureFlagItem(props: FeatureFlagItemProps) {
                     alt="featureOff"
                     className='cursor-pointer'
                     onClick={() => toogleFlag(id, status)} />
-                <img src={edit} alt="edit" className='cursor-pointer' />
+                <Modal trigger={<img src={edit} alt="edit" className='cursor-pointer' />}>
+                    Edit {name}
+                </Modal>
                 <img src={deleteIcon} alt="delete" className='cursor-pointer' onClick={() => deleteFlag(id)} />
             </div>
         </li>
