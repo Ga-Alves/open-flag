@@ -19,25 +19,33 @@ export default function App() {
   } | null>(null);
 
   return (
-    <div className="min-h-dvh flex flex-col items-center">
+    <div className="min-h-dvh flex flex-col items-center transition-colors duration-300 bg-gray-50 dark:bg-[#0f172a]">
       <Header />
-      <main className="w-1/2 mt-12">
+
+      <main className="w-11/12 md:w-2/3 lg:w-1/2 mt-12">
+        {/* Header com título e botão */}
         <div className="flex justify-between items-center">
-          <h1 className="m-2 text-3xl font-bold text-blue-950">
-            My Feature Flags
+          <h1 className="m-2 text-4xl font-extrabold text-slate-900 dark:text-gray-100 tracking-tight drop-shadow-sm">
+            My <span className="text-blue-600 dark:text-blue-400">Feature Flags</span>
           </h1>
 
-          {/* Botão para abrir modal de criação */}
-          <img
-            src={add}
-            alt="add feature flag"
-            className="cursor-pointer w-8 h-8 hover:scale-105 transition-transform"
+          {/* Botão de adicionar (branco sobre fundo azul) */}
+          <button
             onClick={() => setIsCreateModalOpen(true)}
-          />
+            className="cursor-pointer w-9 h-9 flex items-center justify-center bg-white text-blue-700 font-bold rounded-md shadow-md hover:shadow-lg hover:scale-105 transition-all"
+            aria-label="Add Feature Flag"
+          >
+            <img
+              src={add}
+              alt="add feature flag"
+              className="w-6 h-6 invert dark:invert-0 opacity-90"
+            />
+          </button>
         </div>
 
-        <hr className="border-gray-200 mb-6" />
+        <hr className="border-gray-300 dark:border-gray-600 mb-6" />
 
+        {/* Lista */}
         <FeatureFlagList
           onEdit={(flag) => {
             setSelectedFlag(flag);
