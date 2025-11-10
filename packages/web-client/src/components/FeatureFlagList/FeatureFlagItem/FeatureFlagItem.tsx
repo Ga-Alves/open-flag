@@ -2,7 +2,7 @@ import deleteIcon from '../../../assets/delete.svg';
 import edit from '../../../assets/edit.svg';
 import toggleOff from '../../../assets/toggle-off.svg';
 import toggleOn from '../../../assets/toggle-on.svg';
-import Modal from '../../Modal/Modal';
+import Modal from '../../Modal/ModalBase';
 
 type FeatureFlagItemProps = {
     id: number,

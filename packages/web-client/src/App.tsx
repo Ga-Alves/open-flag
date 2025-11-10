@@ -1,7 +1,7 @@
 import add from './assets/add-square.svg';
 import FeatureFlagList from './components/FeatureFlagList/FeatureFlagList';
 import Header from "./components/Header/Header";
-import Modal from './components/Modal/Modal';
+import Modal from './components/Modal/ModalBase';
 
 export default function App() {
 
