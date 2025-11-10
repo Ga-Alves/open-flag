@@ -16,34 +16,37 @@ export const CreateFeatureFlagModal: React.FC<CreateFeatureFlagModalProps> = ({
   const [description, setDescription] = useState("");
 
   return (
-    <ModalBase isOpen={isOpen} title="Create Feature Flag" onClose={onClose}>
-      <div className="flex flex-col gap-3">
-        <label className="font-medium">Name</label>
+    <ModalBase isOpen={isOpen} title="Create New Feature Flag" onClose={onClose}>
+      <div className="flex flex-col gap-4">
         <input
-          className="border rounded-md p-2 bg-gray-100"
+          className="border rounded-md p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
+          placeholder="Flag name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-
-        <label className="font-medium">Description</label>
         <textarea
-          className="border rounded-md p-2 bg-gray-100 min-h-[100px]"
+          className="border rounded-md p-2 bg-gray-50 min-h-[100px] focus:ring-2 focus:ring-blue-500 outline-none"
+          placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <div className="flex justify-between mt-5">
-          <button
-            onClick={() => onConfirm({ name, description })}
-            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md"
-          >
-            Confirm
-          </button>
+        <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md"
+            className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
           >
-            Close
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              onConfirm({ name, description });
+              setName("");
+              setDescription("");
+            }}
+            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
+          >
+            Create
           </button>
         </div>
       </div>
