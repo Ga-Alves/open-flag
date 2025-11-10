@@ -1,10 +1,87 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+/* ====== FONTES ====== */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+/* ====== TAILWIND ====== */
 @import "tailwindcss";
 
+/* ====== TEMA PADRÃO ====== */
 @theme {
-  --font-roboto: "Roboto", sans-serif; 
+  --font-roboto: "Roboto", sans-serif;
+
+  /* Cores principais do projeto */
+  --color-primary: #1e3a8a; /* azul escuro */
+  --color-secondary: #3b82f6; /* azul médio */
+  --color-success: #16a34a; /* verde */
+  --color-danger: #dc2626; /* vermelho */
+  --color-warning: #f59e0b; /* amarelo */
 }
 
+/* ====== ESTILOS GERAIS ====== */
 * {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-gray-50 text-gray-800 antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ====== MODO ESCURO (opcional) ====== */
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  .modal-content {
+    @apply bg-gray-800 text-gray-100;
+  }
+}
+
+/* ====== ANIMAÇÕES UTILIZADAS NOS MODAIS ====== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.animate-scaleIn {
+  animation: scaleIn 0.25s ease-in-out;
+}
+
+/* ====== BOTÕES PADRÃO ====== */
+.btn {
+  @apply px-4 py-2 rounded-md font-medium transition-colors;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-success {
+  @apply bg-green-600 text-white hover:bg-green-700;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+.btn-gray {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
 }
