@@ -38,16 +38,16 @@ export const CreateFeatureFlagModal: React.FC<CreateFeatureFlagModalProps> = ({
           >
             Cancel
           </button>
-          <button
-            onClick={() => {
-              onConfirm({ name, description });
-              setName("");
-              setDescription("");
-            }}
-            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
-          >
-            Create
-          </button>
+        <button
+          onClick={() => {
+            onConfirm({ name, description });
+            setName("");
+            setDescription("");
+          }}
+          className="px-5 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-md hover:shadow-lg transition-all"
+        >
+          Create Feature Flag
+        </button>
         </div>
       </div>
     </ModalBase>
