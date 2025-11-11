@@ -19,13 +19,13 @@ class Storage:
             entry = (name, value, description)
             cur.execute("INSERT INTO flags VALUES(?, ?, ?)", entry)
         except sqlite3.IntegrityError as error:
-            return -2
+            return (-2, None)
 
         # Commits and finalizes
         self.con.commit()
         cur.close()
 
-        return 0
+        return (0, None)
 
     def update_flag(self, name: str, value: bool):
         # Creates a cursor for the transaction
@@ -37,13 +37,13 @@ class Storage:
 
         # If nothing was changed (flag not found)
         if cur.rowcount == 0:
-            return -1
+            return (-1, None)
 
         # Commits and finalizes
         self.con.commit()
         cur.close()
 
-        return 0
+        return (0, None)
 
     def remove_flag(self, name: str):
         # Creates a cursor for the transaction
@@ -55,13 +55,13 @@ class Storage:
 
         # If nothing was changed (flag not found)
         if cur.rowcount == 0:
-            return -1
+            return (-1, None)
 
         # Commits and finalizes
         self.con.commit()
         cur.close()
 
-        return 0
+        return (0, None)
 
     def list_flags(self):
         # Creates a cursor for the transaction
@@ -74,7 +74,7 @@ class Storage:
         # Returns and finalizes
         cur.close()
 
-        return res
+        return (0, res)
 
     def get_flag(self, name: str):
         # Creates a cursor for the transaction
@@ -87,7 +87,7 @@ class Storage:
 
         # If nothing was found (flag not found)
         if not res:
-            return -1
+            return (-1, None)
         else:
             res = (
                 res[0],
@@ -98,4 +98,4 @@ class Storage:
         # Returns and finalizes
         cur.close()
 
-        return res
+        return (0, res)
