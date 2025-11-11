@@ -27,3 +27,8 @@ class OpenFlag:
         response = requests.get(f"http://{self.host}:{self.port}/flags/{name}/check")
         response = response.json()
         return eval(response)
+
+    def remove(self, name: str):
+        response = requests.delete(f"http://{self.host}:{self.port}/flags/{name}/check")
+        response = response.json()
+        return eval(response)
