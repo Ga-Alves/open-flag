@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from db import Storage
 from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, status
 
-# Temporary storage mechanism
-storage = {}
+# Creates connection with storage
+storage = Storage()
 
 # Declares the REST API server.
 app = FastAPI()
@@ -26,7 +27,7 @@ def get_flags():
     """
     Returns all stored flags.
     """
-    return list(storage.keys())
+    return storage.list_flags()
 
 
 @app.post("/flags")
@@ -36,8 +37,14 @@ def create_flag(request: FlagCreationRequest):
     """
     flag_name = request.name
     flag_value = request.value
+    flag_description = request.description
 
-    storage[flag_name] = flag_value
+    success = storage.insert_flag(flag_name, flag_value, flag_description)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Problem creating flag",
+        )
 
     return request
 
@@ -50,14 +57,29 @@ def update_flag(request: FlagUpdateRequest):
     flag_name = request.name
     flag_value = request.value
 
-    storage[flag_name] = flag_value
+    storage.update_flag(flag_name, flag_value)
 
     return request
 
 
-@app.get("/flags/{name}/check")
+@app.get("/flags/{name}")
 def check_flag_status(name: str):
     """
     Returns the status of the given flag.
     """
-    return storage[name]
+    flag = storage.get_flag(name)
+    if not flag:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Requested flag not found",
+        )
+
+    return flag
+
+
+@app.delete("/flags/{name}")
+def remove_flag(name: str):
+    """
+    Removes the given flag.
+    """
+    storage.remove_flag(name)
