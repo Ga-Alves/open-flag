@@ -18,59 +18,58 @@ class Storage:
         try:
             entry = (name, value, description)
             cur.execute("INSERT INTO flags VALUES(?, ?, ?)", entry)
-        except sqlite3.Error as error:
-            return False
+        except sqlite3.IntegrityError as error:
+            return -2
 
         # Commits and finalizes
         self.con.commit()
         cur.close()
 
-        return True
+        return 0
 
     def update_flag(self, name: str, value: bool):
         # Creates a cursor for the transaction
         cur = self.con.cursor()
 
         # Executes the update
-        try:
-            entry = (value, name)
-            cur.execute("UPDATE flags SET value=? WHERE name=?", entry)
-        except sqlite3.Error as error:
-            return False
+        entry = (value, name)
+        cur.execute("UPDATE flags SET value=? WHERE name=?", entry)
+
+        # If nothing was changed (flag not found)
+        if cur.rowcount == 0:
+            return -1
 
         # Commits and finalizes
         self.con.commit()
         cur.close()
 
-        return True
+        return 0
 
     def remove_flag(self, name: str):
         # Creates a cursor for the transaction
         cur = self.con.cursor()
 
         # Executes the removal
-        try:
-            entry = (name,)
-            cur.execute("DELETE FROM flags WHERE name=?", entry)
-        except sqlite3.Error as error:
-            return False
+        entry = (name,)
+        cur.execute("DELETE FROM flags WHERE name=?", entry)
+
+        # If nothing was changed (flag not found)
+        if cur.rowcount == 0:
+            return -1
 
         # Commits and finalizes
         self.con.commit()
         cur.close()
 
-        return True
+        return 0
 
     def list_flags(self):
         # Creates a cursor for the transaction
         cur = self.con.cursor()
 
         # Executes the query
-        try:
-            res = cur.execute("SELECT name FROM flags")
-            res = [entry[0] for entry in res.fetchall()]
-        except sqlite3.Error as error:
-            return False
+        res = cur.execute("SELECT name FROM flags")
+        res = [entry[0] for entry in res.fetchall()]
 
         # Returns and finalizes
         cur.close()
@@ -82,16 +81,19 @@ class Storage:
         cur = self.con.cursor()
 
         # Executes the query
-        try:
-            entry = (name,)
-            res = cur.execute("SELECT * FROM flags WHERE name=?", entry)
-            res = res.fetchone()
-        except sqlite3.Error as error:
-            return False
+        entry = (name,)
+        res = cur.execute("SELECT * FROM flags WHERE name=?", entry)
+        res = res.fetchone()
 
-        # Returns value to bool due to sqlite converting it to integer
-        if res:
-            res = (res[0], bool(res[1]), res[2])
+        # If nothing was found (flag not found)
+        if not res:
+            return -1
+        else:
+            res = (
+                res[0],
+                bool(res[1]),
+                res[2],
+            )  # Returns value to bool due to sqlite converting it to integer
 
         # Returns and finalizes
         cur.close()
