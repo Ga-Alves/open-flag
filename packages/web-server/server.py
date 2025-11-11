@@ -11,12 +11,13 @@ app = FastAPI()
 # Request body definitions
 class FlagCreationRequest(BaseModel):
     name: str
-    value: str
+    value: bool
+    description: str
 
 
 class FlagUpdateRequest(BaseModel):
     name: str
-    value: str
+    value: bool
 
 
 # Route definitions
