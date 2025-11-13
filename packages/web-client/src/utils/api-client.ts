@@ -17,55 +17,66 @@ export class FeatureFlagClient {
   }
 
   async listAllFlags(): Promise<FeatureFlag[]> {
-    // const response = await fetch(`${this.baseUrl}/flags`);
+    const response = await fetch(`${this.baseUrl}/flags`);
 
-    // if (!response.ok) {
-    //   throw new Error(`Failed to fetch flags: ${response.statusText}`);
-    // }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch flags: ${response.statusText}`);
+    }
 
-    // return response.json();
-    return FeatureFlagList.map((flag) => ({
-      ...flag,
-      name: flag.name + new Date().toISOString(),
-    }));
+    const res = await response.json();
+
+    return res;
   }
 
   async createFlag(flagData: CreateFlagRequest) {
-    // const response = await fetch(`${this.baseUrl}/flags`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(flagData),
-    // });
-    // if (!response.ok) {
-    //   throw new Error(`Failed to create flag: ${response.statusText}`);
-    // }
+    const response = await fetch(`${this.baseUrl}/flags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...flagData, value: false }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to create flag: ${response.statusText}`);
+    }
   }
 
-  async updateFlag(id: string, flagData: UpdateFlagRequest) {
-    // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
-    //   method: "PUT",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(flagData),
-    // });
-    // if (!response.ok) {
-    //   throw new Error(`Failed to update flag: ${response.statusText}`);
-    // }
+  async updateFlag(name: string, flagData: UpdateFlagRequest) {
+    const response = await fetch(`${this.baseUrl}/flags/${name}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(flagData),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update flag: ${response.statusText}`);
+    }
   }
 
   async deleteFlag(id: string): Promise<void> {
-    // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
-    //   method: "DELETE",
-    // });
-    // if (!response.ok) {
-    //   throw new Error(`Failed to delete flag: ${response.statusText}`);
-    // }
+    const response = await fetch(`${this.baseUrl}/flags/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete flag: ${response.statusText}`);
+    }
   }
 
-  async toggleFlag(id: string, currentStatus: boolean) {
-    this.updateFlag(id, { status: !currentStatus });
+  async toggleFlag(
+    name: string
+  ): Promise<{ message: string; new_value: boolean }> {
+    const response = await fetch(`${this.baseUrl}/flags/${name}/toggle`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to toggle flag: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 }

@@ -1,20 +1,30 @@
+from datetime import datetime
 from db import Storage
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware  # ADICIONE ESTA LINHA
 
 # Creates connection with storage
 storage = Storage()
 
 # Error handling
 error_codes = {
-    0: (status.HTTP_200_OK, "Operation successfull!"),
-    -1: (status.HTTP_404_NOT_FOUND, f"Flag with ID {ID} not found!"),
-    -2: (status.HTTP_500_INTERNAL_SERVER_ERROR, f"Flag with ID {ID} already exists!"),
+    0: (status.HTTP_200_OK, "Operation successful!"),
+    -1: (status.HTTP_404_NOT_FOUND, "Flag not found!"),
+    -2: (status.HTTP_500_INTERNAL_SERVER_ERROR, "Flag already exists!"),
 }
 
 # Declares the REST API server.
 app = FastAPI()
 
+# ADICIONE ESTA CONFIGURAÇÃO CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # URL do seu frontend
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos os métodos (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Permite todos os headers
+)
 
 # Request body definitions
 class FlagCreationRequest(BaseModel):
@@ -22,22 +32,30 @@ class FlagCreationRequest(BaseModel):
     value: bool
     description: str
 
-
 class FlagUpdateRequest(BaseModel):
     name: str
-    value: bool
-
+    description: str
 
 # Route definitions
 @app.get("/flags")
 def get_flags():
     """
-    Returns all stored flags.
+    Returns all stored flags with their usage timestamps.
     """
-    code, res = storage.list_flags()
-
-    return res
-
+    _, res = storage.list_flags()
+    
+    # Formata a resposta para incluir informações do usage_log
+    formatted_flags = []
+    for flag in res:
+        flag_data = {
+            "name": flag["name"],
+            "value": flag["value"],
+            "description": flag["description"],
+            "usage_timestamps": flag["usage_log"],
+        }
+        formatted_flags.append(flag_data)
+    
+    return formatted_flags
 
 @app.post("/flags", status_code=status.HTTP_201_CREATED)
 def create_flag(request: FlagCreationRequest):
@@ -59,16 +77,15 @@ def create_flag(request: FlagCreationRequest):
 
     return request
 
-
-@app.put("/flags", status_code=status.HTTP_200_OK)
-def update_flag(request: FlagUpdateRequest):
+@app.put("/flags/{name}", status_code=status.HTTP_200_OK)
+def update_flag(name:str, request: FlagUpdateRequest):
     """
     Updates a given flag.
     """
     flag_name = request.name
-    flag_value = request.value
+    flag_description = request.description
 
-    code, res = storage.update_flag(flag_name, flag_value)
+    code, res = storage.update_flag(name, flag_name, flag_description)
 
     if code != 0:
         error = error_codes[code]
@@ -79,12 +96,29 @@ def update_flag(request: FlagUpdateRequest):
 
     return request
 
+@app.put("/flags/{name}/toggle", status_code=status.HTTP_200_OK)
+def toggle_flag(name: str):
+    """
+    Toggles the value of a given flag (true/false).
+    """
+    code, res = storage.toggle_flag(name)
+
+    if code != 0:
+        error = error_codes[code]
+        raise HTTPException(
+            status_code=error[0],
+            detail=error[1],
+        )
+
+    return {"message": f"Flag {name} toggled successfully", "new_value": res}
 
 @app.get("/flags/{name}", status_code=status.HTTP_200_OK)
 def check_flag_status(name: str):
     """
     Returns the status of the given flag.
     """
+    storage.log_date_time_for_flag(name)
+    
     code, res = storage.get_flag(name)
 
     if code != 0:
@@ -94,7 +128,6 @@ def check_flag_status(name: str):
         )
 
     return res
-
 
 @app.delete("/flags/{name}", status_code=status.HTTP_200_OK)
 def remove_flag(name: str):

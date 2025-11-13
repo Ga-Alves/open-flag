@@ -25,18 +25,18 @@ export default function useFeatureFlags() {
     await loadFlags();
   };
   
-  const updateFlag = async (id: number, flagData: UpdateFlagRequest) => {
-    await client.updateFlag(id.toString(), flagData);
+  const updateFlag = async (name: string, flagData: UpdateFlagRequest) => {
+    await client.updateFlag(name, flagData);
     await loadFlags();
   };
   
-  const deleteFlag = async (id: number) => {
-    await client.deleteFlag(id.toString());
+  const deleteFlag = async (name: string) => {
+    await client.deleteFlag(name);
     await loadFlags();
   };
   
-  const toggleFlag = async (id: number, currentStatus: boolean) => {
-    await client.toggleFlag(id.toString(), currentStatus);
+  const toggleFlag = async (name: string) => {
+    await client.toggleFlag(name);
     await loadFlags();
   };
 
