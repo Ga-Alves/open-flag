@@ -41,17 +41,17 @@ export class FeatureFlagClient {
     // }
   }
 
-  async updateFlag(id: string, flagData: UpdateFlagRequest) {
-    // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
-    //   method: "PUT",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(flagData),
-    // });
-    // if (!response.ok) {
-    //   throw new Error(`Failed to update flag: ${response.statusText}`);
-    // }
+  async updateFlag(name: string, flagData: UpdateFlagRequest) {
+    const response = await fetch(`${this.baseUrl}/flags/${name}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(flagData),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update flag: ${response.statusText}`);
+    }
   }
 
   async deleteFlag(id: string): Promise<void> {
@@ -64,6 +64,6 @@ export class FeatureFlagClient {
   }
 
   async toggleFlag(id: string, currentStatus: boolean) {
-    this.updateFlag(id, { status: !currentStatus });
+    this.updateFlag(id, { value: !currentStatus });
   }
 }

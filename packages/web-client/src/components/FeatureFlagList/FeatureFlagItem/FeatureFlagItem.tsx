@@ -2,19 +2,23 @@ import deleteIcon from "../../../assets/delete.svg";
 import editIcon from "../../../assets/edit.svg";
 import toggleOff from "../../../assets/toggle-off.svg";
 import toggleOn from "../../../assets/toggle-on.svg";
+import type { UpdateFlagRequest } from "../../../types/types";
 import { DeleteFeatureFlagModal } from "../../Modal/DeleteFeatureFlagModal";
+import { EditFeatureFlagModal } from "../../Modal/EditFeatureFlagModal";
 
 type FeatureFlagItemProps = {
   name: string;
   description: string;
   value: boolean;
-  deleteFlag:  (name:string) => void;
+  deleteFlag: (name: string) => void;
+  updateFlag: (name: string, flagData: UpdateFlagRequest) => void;
 };
 
 export default function FeatureFlagItem(props: FeatureFlagItemProps) {
-  const { name, description, value, deleteFlag } = props;
-  console.log({status});
-  
+  const { name, description, value, deleteFlag, updateFlag } = props;
+
+  const onEdit = (flagData: UpdateFlagRequest) => updateFlag(name, flagData)
+
   return (
     <li className="flex items-center justify-between bg-gray-50 border rounded-lg p-4">
       <div className="w-1/2">
@@ -29,10 +33,16 @@ export default function FeatureFlagItem(props: FeatureFlagItemProps) {
           className="cursor-pointer"
         />
 
-        <img
-          src={editIcon}
-          alt="edit"
-          className="cursor-pointer"
+        <EditFeatureFlagModal
+          flag={{ name, description }}
+          onConfirm={onEdit}
+          trigger={
+            <img
+              src={editIcon}
+              alt="edit"
+              className="cursor-pointer"
+            />
+          }
         />
 
         <DeleteFeatureFlagModal

@@ -117,14 +117,19 @@ class Storage:
 
         return (0, res)
 
-    # Os outros métodos (update_flag, remove_flag, list_flags) permanecem iguais
-    def update_flag(self, name: str, value: bool):
+    def update_flag(self, currentName: str, newName: str, description: str):
+        """
+        Atualiza o nome e a descrição de uma flag existente
+        """
         # Creates a cursor for the transaction
         cur = self.con.cursor()
 
         # Executes the update
-        entry = (int(value), name)
-        cur.execute("UPDATE flags SET value=? WHERE name=?", entry)
+        try:
+            entry = (newName, description, currentName)
+            cur.execute("UPDATE flags SET name=?, description=? WHERE name=?", entry)
+        except sqlite3.IntegrityError as error:
+            return (-2, None)  # Novo nome já existe
 
         # If nothing was changed (flag not found)
         if cur.rowcount == 0:
@@ -135,6 +140,7 @@ class Storage:
         cur.close()
 
         return (0, None)
+
 
     def remove_flag(self, name: str):
         # Creates a cursor for the transaction

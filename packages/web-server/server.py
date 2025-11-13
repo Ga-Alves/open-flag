@@ -34,7 +34,7 @@ class FlagCreationRequest(BaseModel):
 
 class FlagUpdateRequest(BaseModel):
     name: str
-    value: bool
+    description: str
 
 # Route definitions
 @app.get("/flags")
@@ -77,15 +77,15 @@ def create_flag(request: FlagCreationRequest):
 
     return request
 
-@app.put("/flags", status_code=status.HTTP_200_OK)
-def update_flag(request: FlagUpdateRequest):
+@app.put("/flags/{name}", status_code=status.HTTP_200_OK)
+def update_flag(name:str, request: FlagUpdateRequest):
     """
     Updates a given flag.
     """
     flag_name = request.name
-    flag_value = request.value
+    flag_description = request.description
 
-    code, res = storage.update_flag(flag_name, flag_value)
+    code, res = storage.update_flag(name, flag_name, flag_description)
 
     if code != 0:
         error = error_codes[code]
