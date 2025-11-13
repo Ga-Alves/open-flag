@@ -4,7 +4,21 @@ import sqlite3
 class Storage:
     def __init__(self):
         # Creates a connection with the database
-        self.con = sqlite3.connect("./data.db")
+        self.con = sqlite3.connect("./data.db", check_same_thread=False)
+        self._create_table()
+    
+    def _create_table(self):
+        """Cria a tabela se não existir - MÉTODO NOVO"""
+        cur = self.con.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS flags (
+                name TEXT PRIMARY KEY,
+                value INTEGER,
+                description TEXT
+            )
+        """)
+        self.con.commit()
+        cur.close()
 
     def __del__(self):
         # Finalizes the connection with the database
@@ -68,8 +82,8 @@ class Storage:
         cur = self.con.cursor()
 
         # Executes the query
-        res = cur.execute("SELECT name FROM flags")
-        res = [entry[0] for entry in res.fetchall()]
+        res = cur.execute("SELECT * FROM flags")
+        res = [entry for entry in res.fetchall()]
 
         # Returns and finalizes
         cur.close()

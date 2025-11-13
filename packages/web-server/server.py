@@ -8,8 +8,8 @@ storage = Storage()
 # Error handling
 error_codes = {
     0: (status.HTTP_200_OK, "Operation successfull!"),
-    -1: (status.HTTP_404_NOT_FOUND, f"Flag with ID {ID} not found!"),
-    -2: (status.HTTP_500_INTERNAL_SERVER_ERROR, f"Flag with ID {ID} already exists!"),
+    -1: (status.HTTP_404_NOT_FOUND, f"Flag with ID not found!"),
+    -2: (status.HTTP_500_INTERNAL_SERVER_ERROR, f"Flag with ID already exists!"),
 }
 
 # Declares the REST API server.
