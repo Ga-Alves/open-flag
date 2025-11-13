@@ -23,9 +23,9 @@ export class FeatureFlagClient {
       throw new Error(`Failed to fetch flags: ${response.statusText}`);
     }
 
-    const res = await response.json()
-  
-    return res
+    const res = await response.json();
+
+    return res;
   }
 
   async createFlag(flagData: CreateFlagRequest) {
@@ -63,7 +63,20 @@ export class FeatureFlagClient {
     }
   }
 
-  async toggleFlag(id: string, currentStatus: boolean) {
-    this.updateFlag(id, { value: !currentStatus });
+  async toggleFlag(
+    name: string
+  ): Promise<{ message: string; new_value: boolean }> {
+    const response = await fetch(`${this.baseUrl}/flags/${name}/toggle`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to toggle flag: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 }

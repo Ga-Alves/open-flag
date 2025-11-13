@@ -180,3 +180,30 @@ class Storage:
         cur.close()
 
         return (0, flags)
+    def toggle_flag(self, name: str):
+        """
+        Inverte o valor de uma flag (true/false)
+        """
+        # Creates a cursor for the transaction
+        cur = self.con.cursor()
+
+        # Primeiro busca o valor atual
+        cur.execute("SELECT value FROM flags WHERE name=?", (name,))
+        result = cur.fetchone()
+
+        if not result:
+            return (-1, None)  # Flag não encontrada
+
+        # Inverte o valor
+        current_value = bool(result[0])
+        new_value = not current_value
+
+        # Executes the update
+        entry = (int(new_value), name)
+        cur.execute("UPDATE flags SET value=? WHERE name=?", entry)
+
+        # Commits and finalizes
+        self.con.commit()
+        cur.close()
+
+        return (0, new_value)

@@ -96,6 +96,22 @@ def update_flag(name:str, request: FlagUpdateRequest):
 
     return request
 
+@app.put("/flags/{name}/toggle", status_code=status.HTTP_200_OK)
+def toggle_flag(name: str):
+    """
+    Toggles the value of a given flag (true/false).
+    """
+    code, res = storage.toggle_flag(name)
+
+    if code != 0:
+        error = error_codes[code]
+        raise HTTPException(
+            status_code=error[0],
+            detail=error[1],
+        )
+
+    return {"message": f"Flag {name} toggled successfully", "new_value": res}
+
 @app.get("/flags/{name}", status_code=status.HTTP_200_OK)
 def check_flag_status(name: str):
     """

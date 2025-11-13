@@ -11,11 +11,12 @@ type FeatureFlagItemProps = {
   description: string;
   value: boolean;
   deleteFlag: (name: string) => void;
+  toggleFlag: (name: string) => void;
   updateFlag: (name: string, flagData: UpdateFlagRequest) => void;
 };
 
 export default function FeatureFlagItem(props: FeatureFlagItemProps) {
-  const { name, description, value, deleteFlag, updateFlag } = props;
+  const { name, description, value, deleteFlag, updateFlag, toggleFlag } = props;
 
   const onEdit = (flagData: UpdateFlagRequest) => updateFlag(name, flagData)
 
@@ -31,6 +32,7 @@ export default function FeatureFlagItem(props: FeatureFlagItemProps) {
           src={value ? toggleOn : toggleOff}
           alt="toggle"
           className="cursor-pointer"
+          onClick={() => toggleFlag(name)}
         />
 
         <EditFeatureFlagModal

@@ -35,8 +35,8 @@ export default function useFeatureFlags() {
     await loadFlags();
   };
   
-  const toggleFlag = async (name: string, currentStatus: boolean) => {
-    await client.toggleFlag(name, currentStatus);
+  const toggleFlag = async (name: string) => {
+    await client.toggleFlag(name);
     await loadFlags();
   };
 
