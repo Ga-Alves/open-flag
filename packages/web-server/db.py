@@ -1,4 +1,6 @@
 import sqlite3
+import json
+import time
 
 
 class Storage:
@@ -8,13 +10,14 @@ class Storage:
         self._create_table()
     
     def _create_table(self):
-        """Cria a tabela se não existir - MÉTODO NOVO"""
+        """Cria a tabela se não existir"""
         cur = self.con.cursor()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS flags (
                 name TEXT PRIMARY KEY,
                 value INTEGER,
-                description TEXT
+                description TEXT,
+                usage_log TEXT  -- NOVO CAMPO: array de timestamps em JSON
             )
         """)
         self.con.commit()
@@ -30,8 +33,8 @@ class Storage:
 
         # Executes the insertion
         try:
-            entry = (name, value, description)
-            cur.execute("INSERT INTO flags VALUES(?, ?, ?)", entry)
+            entry = (name, int(value), description, '[]')  # Array vazio inicial
+            cur.execute("INSERT INTO flags VALUES(?, ?, ?, ?)", entry)
         except sqlite3.IntegrityError as error:
             return (-2, None)
 
@@ -41,12 +44,86 @@ class Storage:
 
         return (0, None)
 
+    def log_date_time_for_flag(self, name: str):
+        """
+        Adiciona um timestamp atual ao log de uso da flag
+        """
+        cur = self.con.cursor()
+        
+        # Primeiro busca o log atual
+        cur.execute("SELECT usage_log FROM flags WHERE name=?", (name,))
+        result = cur.fetchone()
+        
+        if not result:
+            return (-1, None)  # Flag não encontrada
+        
+        # Parse do JSON atual
+        current_log = json.loads(result[0])
+        
+        # Adiciona o timestamp atual (em segundos desde epoch)
+        current_timestamp = time.time()
+        current_log.append(current_timestamp)
+        
+        # Atualiza no banco
+        updated_log = json.dumps(current_log)
+        cur.execute("UPDATE flags SET usage_log=? WHERE name=?", (updated_log, name))
+        
+        # Commits and finalizes
+        self.con.commit()
+        cur.close()
+        
+        return (0, current_timestamp)
+
+    def get_flag_usage_log(self, name: str):
+        """
+        Retorna o array de timestamps de uso da flag
+        """
+        cur = self.con.cursor()
+        
+        cur.execute("SELECT usage_log FROM flags WHERE name=?", (name,))
+        result = cur.fetchone()
+        
+        if not result:
+            return (-1, None)  # Flag não encontrada
+        
+        usage_log = json.loads(result[0])
+        cur.close()
+        
+        return (0, usage_log)
+
+    # ATUALIZE o get_flag para incluir o usage_log no retorno
+    def get_flag(self, name: str):
+        # Creates a cursor for the transaction
+        cur = self.con.cursor()
+
+        # Executes the query
+        entry = (name,)
+        res = cur.execute("SELECT * FROM flags WHERE name=?", entry)
+        res = res.fetchone()
+
+        # If nothing was found (flag not found)
+        if not res:
+            return (-1, None)
+        else:
+            res = (
+                res[0],  # name
+                bool(res[1]),  # value
+                res[2],  # description
+                json.loads(res[3]) if res[3] else []  # usage_log (novo)
+            )
+
+        # Returns and finalizes
+        cur.close()
+
+        return (0, res)
+
+    # Os outros métodos (update_flag, remove_flag, list_flags) permanecem iguais
     def update_flag(self, name: str, value: bool):
         # Creates a cursor for the transaction
         cur = self.con.cursor()
 
         # Executes the update
-        entry = (value, name)
+        entry = (int(value), name)
         cur.execute("UPDATE flags SET value=? WHERE name=?", entry)
 
         # If nothing was changed (flag not found)
@@ -81,35 +158,19 @@ class Storage:
         # Creates a cursor for the transaction
         cur = self.con.cursor()
 
-        # Executes the query
-        res = cur.execute("SELECT * FROM flags")
-        res = [entry for entry in res.fetchall()]
+        # Executes the query - AGORA BUSCA TODOS OS CAMPOS
+        res = cur.execute("SELECT name, value, description, usage_log FROM flags")
+        flags = []
+        for entry in res.fetchall():
+            flag_data = {
+                "name": entry[0],
+                "value": bool(entry[1]),
+                "description": entry[2],
+                "usage_log": json.loads(entry[3]) if entry[3] else []
+            }
+            flags.append(flag_data)
 
         # Returns and finalizes
         cur.close()
 
-        return (0, res)
-
-    def get_flag(self, name: str):
-        # Creates a cursor for the transaction
-        cur = self.con.cursor()
-
-        # Executes the query
-        entry = (name,)
-        res = cur.execute("SELECT * FROM flags WHERE name=?", entry)
-        res = res.fetchone()
-
-        # If nothing was found (flag not found)
-        if not res:
-            return (-1, None)
-        else:
-            res = (
-                res[0],
-                bool(res[1]),
-                res[2],
-            )  # Returns value to bool due to sqlite converting it to integer
-
-        # Returns and finalizes
-        cur.close()
-
-        return (0, res)
+        return (0, flags)

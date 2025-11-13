@@ -1,3 +1,4 @@
+from datetime import datetime
 from db import Storage
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, status
@@ -7,9 +8,9 @@ storage = Storage()
 
 # Error handling
 error_codes = {
-    0: (status.HTTP_200_OK, "Operation successfull!"),
-    -1: (status.HTTP_404_NOT_FOUND, f"Flag with ID not found!"),
-    -2: (status.HTTP_500_INTERNAL_SERVER_ERROR, f"Flag with ID already exists!"),
+    0: (status.HTTP_200_OK, "Operation successful!"),
+    -1: (status.HTTP_404_NOT_FOUND, "Flag not found!"),
+    -2: (status.HTTP_500_INTERNAL_SERVER_ERROR, "Flag already exists!"),
 }
 
 # Declares the REST API server.
@@ -32,12 +33,23 @@ class FlagUpdateRequest(BaseModel):
 @app.get("/flags")
 def get_flags():
     """
-    Returns all stored flags.
+    Returns all stored flags with their usage timestamps.
     """
     code, res = storage.list_flags()
-
-    return res
-
+    
+    # Formata a resposta para incluir informações do usage_log
+    formatted_flags = []
+    for flag in res:
+        flag_data = {
+            "name": flag["name"],
+            "value": flag["value"],
+            "description": flag["description"],
+            "usage_count": len(flag["usage_log"]),
+            "usage_timestamps": flag["usage_log"],
+        }
+        formatted_flags.append(flag_data)
+    
+    return formatted_flags
 
 @app.post("/flags", status_code=status.HTTP_201_CREATED)
 def create_flag(request: FlagCreationRequest):
@@ -85,6 +97,8 @@ def check_flag_status(name: str):
     """
     Returns the status of the given flag.
     """
+    storage.log_date_time_for_flag(name)
+    
     code, res = storage.get_flag(name)
 
     if code != 0:
