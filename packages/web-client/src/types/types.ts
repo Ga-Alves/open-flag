@@ -1,7 +1,7 @@
 export type FeatureFlag = {
   name: string;
   description: string;
-  status: boolean;
+  value: boolean;
   usage_timestamps: number[]
 }
 
@@ -13,10 +13,10 @@ export type CreateFlagRequest = {
 export type UpdateFlagRequest = {
   name?: string;
   description?: string;
-  status?: boolean;
+  value?: boolean;
 }
 
 export type CheckFlagResponse = {
   name: string;
-  status: boolean;
+  value: boolean;
 }

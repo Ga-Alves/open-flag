@@ -2,7 +2,7 @@ import useFeatureFlags from "../../hooks/useFeatureFlags";
 import FeatureFlagItem from "./FeatureFlagItem/FeatureFlagItem";
 
 export default function FeatureFlagList() {
-  const { data } = useFeatureFlags();
+  const { data, deleteFlag } = useFeatureFlags();
 
   return (
     <ul className="flex flex-col gap-5 mt-5">
@@ -11,7 +11,8 @@ export default function FeatureFlagList() {
           key={flag.name}
           name={flag.name}
           description={flag.description}
-          status={flag.status}
+          value={flag.value}
+          deleteFlag={deleteFlag}
         />
       ))}
     </ul>

@@ -55,12 +55,12 @@ export class FeatureFlagClient {
   }
 
   async deleteFlag(id: string): Promise<void> {
-    // const response = await fetch(`${this.baseUrl}/flags/${id}`, {
-    //   method: "DELETE",
-    // });
-    // if (!response.ok) {
-    //   throw new Error(`Failed to delete flag: ${response.statusText}`);
-    // }
+    const response = await fetch(`${this.baseUrl}/flags/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete flag: ${response.statusText}`);
+    }
   }
 
   async toggleFlag(id: string, currentStatus: boolean) {
