@@ -1,8 +1,8 @@
 export type FeatureFlag = {
-  id: number;
   name: string;
   description: string;
   status: boolean;
+  usage_timestamps: number[]
 }
 
 export type CreateFlagRequest = {

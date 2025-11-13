@@ -2,6 +2,7 @@ from datetime import datetime
 from db import Storage
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware  # ADICIONE ESTA LINHA
 
 # Creates connection with storage
 storage = Storage()
@@ -16,6 +17,14 @@ error_codes = {
 # Declares the REST API server.
 app = FastAPI()
 
+# ADICIONE ESTA CONFIGURAÇÃO CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # URL do seu frontend
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos os métodos (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Permite todos os headers
+)
 
 # Request body definitions
 class FlagCreationRequest(BaseModel):
@@ -23,11 +32,9 @@ class FlagCreationRequest(BaseModel):
     value: bool
     description: str
 
-
 class FlagUpdateRequest(BaseModel):
     name: str
     value: bool
-
 
 # Route definitions
 @app.get("/flags")
@@ -35,7 +42,7 @@ def get_flags():
     """
     Returns all stored flags with their usage timestamps.
     """
-    code, res = storage.list_flags()
+    _, res = storage.list_flags()
     
     # Formata a resposta para incluir informações do usage_log
     formatted_flags = []
@@ -44,7 +51,6 @@ def get_flags():
             "name": flag["name"],
             "value": flag["value"],
             "description": flag["description"],
-            "usage_count": len(flag["usage_log"]),
             "usage_timestamps": flag["usage_log"],
         }
         formatted_flags.append(flag_data)
@@ -71,7 +77,6 @@ def create_flag(request: FlagCreationRequest):
 
     return request
 
-
 @app.put("/flags", status_code=status.HTTP_200_OK)
 def update_flag(request: FlagUpdateRequest):
     """
@@ -91,7 +96,6 @@ def update_flag(request: FlagUpdateRequest):
 
     return request
 
-
 @app.get("/flags/{name}", status_code=status.HTTP_200_OK)
 def check_flag_status(name: str):
     """
@@ -108,7 +112,6 @@ def check_flag_status(name: str):
         )
 
     return res
-
 
 @app.delete("/flags/{name}", status_code=status.HTTP_200_OK)
 def remove_flag(name: str):

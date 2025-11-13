@@ -17,17 +17,15 @@ export class FeatureFlagClient {
   }
 
   async listAllFlags(): Promise<FeatureFlag[]> {
-    // const response = await fetch(`${this.baseUrl}/flags`);
+    const response = await fetch(`${this.baseUrl}/flags`);
 
-    // if (!response.ok) {
-    //   throw new Error(`Failed to fetch flags: ${response.statusText}`);
-    // }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch flags: ${response.statusText}`);
+    }
 
-    // return response.json();
-    return FeatureFlagList.map((flag) => ({
-      ...flag,
-      name: flag.name + new Date().toISOString(),
-    }));
+    const res = await response.json()
+  
+    return res
   }
 
   async createFlag(flagData: CreateFlagRequest) {
