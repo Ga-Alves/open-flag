@@ -29,16 +29,16 @@ export class FeatureFlagClient {
   }
 
   async createFlag(flagData: CreateFlagRequest) {
-    // const response = await fetch(`${this.baseUrl}/flags`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(flagData),
-    // });
-    // if (!response.ok) {
-    //   throw new Error(`Failed to create flag: ${response.statusText}`);
-    // }
+    const response = await fetch(`${this.baseUrl}/flags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...flagData, value: false }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to create flag: ${response.statusText}`);
+    }
   }
 
   async updateFlag(name: string, flagData: UpdateFlagRequest) {

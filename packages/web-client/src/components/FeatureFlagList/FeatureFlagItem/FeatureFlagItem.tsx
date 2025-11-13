@@ -24,7 +24,7 @@ export default function FeatureFlagItem(props: FeatureFlagItemProps) {
     <li className="flex items-center justify-between bg-gray-50 border rounded-lg p-4">
       <div className="w-1/2">
         <h2 className="text-lg font-bold text-blue-950">{name}</h2>
-        <p>{description}</p>
+        <p className="text-black">{description}</p>
       </div>
 
       <div className="flex items-center justify-evenly w-1/2">
