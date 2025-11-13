@@ -1,37 +1,19 @@
-import { useState } from "react";
 import add from "./assets/add-square.svg";
-import Header from "./components/Header/Header";
 import FeatureFlagList from "./components/FeatureFlagList/FeatureFlagList";
-import { CreateFeatureFlagModal } from "./components/Modal/CreateFeatureFlagModal";
-import { EditFeatureFlagModal } from "./components/Modal/EditFeatureFlagModal";
-import { DeleteFeatureFlagModal } from "./components/Modal/DeleteFeatureFlagModal";
+import Header from "./components/Header/Header";
 
 export default function App() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  const [selectedFlag, setSelectedFlag] = useState<{
-    id: number;
-    name: string;
-    description: string;
-    status: boolean;
-  } | null>(null);
-
   return (
     <div className="min-h-dvh flex flex-col items-center transition-colors duration-300 bg-gray-50 dark:bg-[#0f172a]">
       <Header />
 
       <main className="w-11/12 md:w-2/3 lg:w-1/2 mt-12">
-        {/* Header com título e botão */}
         <div className="flex justify-between items-center">
           <h1 className="m-2 text-4xl font-extrabold text-slate-900 dark:text-gray-100 tracking-tight drop-shadow-sm">
             My <span className="text-blue-600 dark:text-blue-400">Feature Flags</span>
           </h1>
 
-          {/* Botão de adicionar (branco sobre fundo azul) */}
           <button
-            onClick={() => setIsCreateModalOpen(true)}
             className="cursor-pointer w-9 h-9 flex items-center justify-center bg-white text-blue-700 font-bold rounded-md shadow-md hover:shadow-lg hover:scale-105 transition-all"
             aria-label="Add Feature Flag"
           >
@@ -45,53 +27,7 @@ export default function App() {
 
         <hr className="border-gray-300 dark:border-gray-600 mb-6" />
 
-        {/* Lista */}
-        <FeatureFlagList
-          onEdit={(flag) => {
-            setSelectedFlag(flag);
-            setIsEditModalOpen(true);
-          }}
-          onDelete={(flag) => {
-            setSelectedFlag(flag);
-            setIsDeleteModalOpen(true);
-          }}
-        />
-
-        {/* Modais */}
-        <CreateFeatureFlagModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          onConfirm={(data) => {
-            console.log("Nova flag criada:", data);
-            setIsCreateModalOpen(false);
-          }}
-        />
-
-        <EditFeatureFlagModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          flag={
-            selectedFlag
-              ? {
-                  name: selectedFlag.name,
-                  description: selectedFlag.description,
-                }
-              : { name: "", description: "" }
-          }
-          onConfirm={(data) => {
-            console.log("Flag editada:", data);
-            setIsEditModalOpen(false);
-          }}
-        />
-
-        <DeleteFeatureFlagModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => {
-            console.log("Flag excluída:", selectedFlag);
-            setIsDeleteModalOpen(false);
-          }}
-        />
+        <FeatureFlagList />
       </main>
     </div>
   );

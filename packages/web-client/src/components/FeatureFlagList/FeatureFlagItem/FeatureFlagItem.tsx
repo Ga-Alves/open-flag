@@ -4,18 +4,13 @@ import toggleOff from "../../../assets/toggle-off.svg";
 import toggleOn from "../../../assets/toggle-on.svg";
 
 type FeatureFlagItemProps = {
-  id: number;
   name: string;
   description: string;
   status: boolean;
-  deleteFlag: (id: number) => void;
-  toogleFlag: (id: number, currentStatus: boolean) => void;
-  onEdit: () => void;
-  onDelete: () => void;
 };
 
 export default function FeatureFlagItem(props: FeatureFlagItemProps) {
-  const { id, name, description, status, deleteFlag, toogleFlag, onEdit, onDelete } = props;
+  const { name, description, status } = props;
 
   return (
     <li className="flex items-center justify-between bg-gray-50 border rounded-lg p-4">
@@ -29,23 +24,18 @@ export default function FeatureFlagItem(props: FeatureFlagItemProps) {
           src={status ? toggleOn : toggleOff}
           alt="toggle"
           className="cursor-pointer"
-          onClick={() => toogleFlag(id, status)}
         />
 
-        {/* Agora chama o modal real de edição */}
         <img
           src={editIcon}
           alt="edit"
           className="cursor-pointer"
-          onClick={onEdit}
         />
 
-        {/* Agora chama o modal real de exclusão */}
         <img
           src={deleteIcon}
           alt="delete"
           className="cursor-pointer"
-          onClick={onDelete}
         />
       </div>
     </li>
