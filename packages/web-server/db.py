@@ -88,26 +88,22 @@ class Storage:
         
         return (self.COMPLETE, usage_log)
 
-    # ATUALIZE o get_flag para incluir o usage_log no retorno
     def get_flag(self, name: str):
         with self.con as con:
-            # Executes the query
+            con.row_factory = sqlite3.Row
+
             entry = (name,)
             res = con.execute("SELECT * FROM flags WHERE name=?", entry)
             res = res.fetchone()
 
-            # If nothing was found (flag not found)
             if not res:
                 return (self.NOT_FOUND, None)
-            else:
-                res = (
-                    res[0],  # name
-                    bool(res[1]),  # value
-                    res[2],  # description
-                    json.loads(res[3]) if res[3] else []  # usage_log (novo)
-                )
+            
+            flag = dict(res)
+            flag["value"] = bool(flag["value"])
+            flag["usage_log"] = json.loads(flag["usage_log"]) if flag["usage_log"] else []
 
-        return (self.COMPLETE, res)
+        return (self.COMPLETE, flag)
 
     def update_flag(self, currentName: str, newName: str, description: str):
         """
@@ -149,20 +145,11 @@ class Storage:
 
     def list_flags(self):
         with self.con as con:
+            con.row_factory = sqlite3.Row
+            rows = con.execute("SELECT * FROM flags").fetchall()
 
-            # Executes the query - AGORA BUSCA TODOS OS CAMPOS
-            res = con.execute("SELECT name, value, description, usage_log FROM flags")
-            flags = []
-            for entry in res.fetchall():
-                flag_data = {
-                    "name": entry[0],
-                    "value": bool(entry[1]),
-                    "description": entry[2],
-                    "usage_log": json.loads(entry[3]) if entry[3] else []
-                }
-                flags.append(flag_data)
+        return (self.COMPLETE, rows)
 
-        return (self.COMPLETE, flags)
     def toggle_flag(self, name: str):
         """
         Inverte o valor de uma flag (true/false)

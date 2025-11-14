@@ -83,18 +83,18 @@ def test_get_flag_and_log_usage():
     assert res1.status_code == 200
     flag = res1.json()
 
-    assert flag[0] == "flagX"      # name
-    assert flag[1] is True         # value
-    assert flag[2] == "test log"
-    assert isinstance(flag[3], list)
+    assert flag["name"] == "flagX"      # name
+    assert flag["value"] is True        # value
+    assert flag["description"] == "test log"
+    assert isinstance(flag["usage_log"], list)
 
     # deve ter 1 registro de uso
-    assert len(flag[3]) == 1
+    assert len(flag["usage_log"]) == 1
 
     # chama de novo → outro timestamp
     res2 = client.get("/flags/flagX")
     flag2 = res2.json()
-    assert len(flag2[3]) == 2
+    assert len(flag2["usage_log"]) == 2
 
 
 def test_get_flag_not_found():
@@ -133,8 +133,8 @@ def test_update_flag_success():
     get_res = client.get("/flags/newName")
     assert get_res.status_code == 200
     flag = get_res.json()
-    assert flag[0] == "newName"
-    assert flag[2] == "updated description"
+    assert flag["name"] == "newName"
+    assert flag["description"] == "updated description"
 
 
 def test_update_flag_not_found():
