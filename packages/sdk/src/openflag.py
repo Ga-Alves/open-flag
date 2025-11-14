@@ -115,7 +115,15 @@ class OpenFlag:
         if response.status_code != 200:
             return -3
 
-        return response.json()
+        # Formats the response
+        raw = response.json()
+        formatted = {}
+        formatted["name"] = raw[0]
+        formatted["value"] = raw[1]
+        formatted["description"] = raw[2]
+        formatted["usage_log"] = raw[3]
+
+        return formatted
 
     def remove(self, name: str):
         """
