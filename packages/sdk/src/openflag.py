@@ -18,10 +18,12 @@ class OpenFlag:
         flag_list = response.json()
 
         # Captures any errors
-        if not istype(flag_list, list(str)):
+        if response.status_code != 200:
+            return -3
+        if not isinstance(flag_list, list):
             return -3
 
-        return response
+        return response.json()
 
     def create(self, name: str, value: bool, description: str):
         """
@@ -34,13 +36,16 @@ class OpenFlag:
         Returns:
         0 (int): Success
         -2 (int): Flag already exists
+        -3 (int): Unknown error
         """
-        body = {"name": name, "value": str(value)}
+        body = {"name": name, "value": value, "description": description}
         response = requests.post(f"http://{self.host}:{self.port}/flags", json=body)
 
         # Captures any errors
         if response.status_code == 500:
             return -2
+        if response.status_code != 201:
+            return -3
 
         return 0
 
@@ -55,6 +60,7 @@ class OpenFlag:
         Returns:
         0 (int): Success
         -1 (int): Flag not found
+        -3 (int): Unknown error
         """
         body = {"name": new_name, "description": new_description}
         response = requests.put(
@@ -64,6 +70,8 @@ class OpenFlag:
         # Captures any errors
         if response.status_code == 404:
             return -1
+        if response.status_code != 200:
+            return -3
 
         return 0
 
@@ -76,13 +84,15 @@ class OpenFlag:
         Returns:
         0 (int): Success
         -1 (int): Flag not found
+        -3 (int): Unknown error
         """
-        body = {"name": name, "value": str(value)}
-        response = requests.put(f"http://{self.host}:{self.port}/flags", json=body)
+        response = requests.put(f"http://{self.host}:{self.port}/flags/{name}/toggle")
 
         # Captures any errors
         if response.status_code == 404:
             return -1
+        if response.status_code != 200:
+            return -3
 
         return 0
 
@@ -95,14 +105,17 @@ class OpenFlag:
         Returns:
         (bool): The value of the flag
         -1 (int): Flag not found
+        -3 (int): Unknown error
         """
-        response = requests.get(f"http://{self.host}:{self.port}/flags/{name}/check")
+        response = requests.get(f"http://{self.host}:{self.port}/flags/{name}")
 
         # Captures any errors
         if response.status_code == 404:
             return -1
+        if response.status_code != 200:
+            return -3
 
-        return eval(response.json())
+        return response.json()
 
     def remove(self, name: str):
         """
@@ -113,11 +126,14 @@ class OpenFlag:
         Returns:
         0 (int): Success
         -1 (int): Flag not found
+        -3 (int): Unknown error
         """
-        response = requests.delete(f"http://{self.host}:{self.port}/flags/{name}/check")
+        response = requests.delete(f"http://{self.host}:{self.port}/flags/{name}")
 
         # Captures any errors
         if response.status_code == 404:
             return -1
+        if response.status_code != 200:
+            return -3
 
         return 0
