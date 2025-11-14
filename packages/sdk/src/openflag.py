@@ -1,10 +1,46 @@
 import requests
 
 
-class OpenFlag:
-    def __init__(self, host: str = "localhost", port: int = 8000):
+class OpenFlagConnection:
+    """
+    Wrapper around the requests library.
+    Establishes a connection with the OpenFlag server.
+    """
+
+    def __init__(self, host: str, port: int):
         self.host = host
         self.port = str(port)
+
+        self.path = f"http://{self.host}:{self.port}/"
+
+    def get(self, route: str):
+        response = requests.get(f"{self.path}{route}")
+        code, body = response.status_code, response.json()
+        return code, body
+
+    def post(self, route: str, body: dict = {}):
+        response = requests.post(f"{self.path}{route}", json=body)
+        code, body = response.status_code, response.json()
+        return code, body
+
+    def put(self, route: str, body: dict = {}):
+        response = requests.put(f"{self.path}{route}", json=body)
+        code, body = response.status_code, response.json()
+        return code, body
+
+    def delete(self, route: str):
+        response = requests.delete(f"{self.path}{route}")
+        code, body = response.status_code, response.json()
+        return code, body
+
+
+class OpenFlag:
+    """
+    SDK for the OpenFlag flag management application.
+    """
+
+    def __init__(self, host: str = "localhost", port: int = 8000):
+        self._conn = OpenFlagConnection(host, port)
 
     def list(self):
         """
@@ -14,16 +50,15 @@ class OpenFlag:
         list(str): List with names of stored flags
         -3 (int): Unknown error
         """
-        response = requests.get(f"http://{self.host}:{self.port}/flags")
-        flag_list = response.json()
+        code, response = self._conn.get("flags")
 
         # Captures any errors
-        if response.status_code != 200:
+        if code != 200:
             return -3
-        if not isinstance(flag_list, list):
+        if not isinstance(response, list):
             return -3
 
-        return response.json()
+        return response
 
     def create(self, name: str, value: bool, description: str):
         """
@@ -39,12 +74,12 @@ class OpenFlag:
         -3 (int): Unknown error
         """
         body = {"name": name, "value": value, "description": description}
-        response = requests.post(f"http://{self.host}:{self.port}/flags", json=body)
+        code, response = self._conn.post("flags", body)
 
         # Captures any errors
-        if response.status_code == 500:
+        if code == 500:
             return -2
-        if response.status_code != 201:
+        if code != 201:
             return -3
 
         return 0
@@ -63,14 +98,12 @@ class OpenFlag:
         -3 (int): Unknown error
         """
         body = {"name": new_name, "description": new_description}
-        response = requests.put(
-            f"http://{self.host}:{self.port}/flags/{name}", json=body
-        )
+        code, response = self._conn.put(f"flags/{name}", body=body)
 
         # Captures any errors
-        if response.status_code == 404:
+        if code == 404:
             return -1
-        if response.status_code != 200:
+        if code != 200:
             return -3
 
         return 0
@@ -86,12 +119,12 @@ class OpenFlag:
         -1 (int): Flag not found
         -3 (int): Unknown error
         """
-        response = requests.put(f"http://{self.host}:{self.port}/flags/{name}/toggle")
+        code, response = self._conn.put(f"flags/{name}/toggle")
 
         # Captures any errors
-        if response.status_code == 404:
+        if code == 404:
             return -1
-        if response.status_code != 200:
+        if code != 200:
             return -3
 
         return 0
@@ -107,21 +140,20 @@ class OpenFlag:
         -1 (int): Flag not found
         -3 (int): Unknown error
         """
-        response = requests.get(f"http://{self.host}:{self.port}/flags/{name}")
+        code, response = self._conn.get(f"flags/{name}")
 
         # Captures any errors
-        if response.status_code == 404:
+        if code == 404:
             return -1
-        if response.status_code != 200:
+        if code != 200:
             return -3
 
         # Formats the response
-        raw = response.json()
         formatted = {}
-        formatted["name"] = raw[0]
-        formatted["value"] = raw[1]
-        formatted["description"] = raw[2]
-        formatted["usage_log"] = raw[3]
+        formatted["name"] = response[0]
+        formatted["value"] = response[1]
+        formatted["description"] = response[2]
+        formatted["usage_log"] = response[3]
 
         return formatted
 
@@ -136,12 +168,12 @@ class OpenFlag:
         -1 (int): Flag not found
         -3 (int): Unknown error
         """
-        response = requests.delete(f"http://{self.host}:{self.port}/flags/{name}")
+        code, response = self._conn.delete(f"flags/{name}")
 
         # Captures any errors
-        if response.status_code == 404:
+        if code == 404:
             return -1
-        if response.status_code != 200:
+        if code != 200:
             return -3
 
         return 0
