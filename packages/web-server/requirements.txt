@@ -1,1 +1,2 @@
 fastapi==0.121.0
+pytest==2.2.1
