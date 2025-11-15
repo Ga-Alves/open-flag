@@ -19,7 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install requirements
         run: |
-          pip install -r packages/sdk/tests/requirements.txt
+          pip install -r packages/sdk/requirements.txt
           pip install -r packages/web-server/requirements.txt
       - name: Run SDK tests
         run: | 
