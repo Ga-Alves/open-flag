@@ -13,6 +13,9 @@
     <a href="#Contato">Send Feedback</a>
   </p>
 </p>
+<div align="center">
+    <img src="https://github.com/bereis01/rpsl_web/actions/workflows/tests.yml/badge.svg">
+</div>
 
 <!-- DESCRIPTION -->
 # Sobre o Projeto
