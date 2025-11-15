@@ -1,60 +1,22 @@
-# Open Flag — Python SDK
+Help on module openflag:
 
-***Software development kit*** da plataforma **OpenFlag** para a linguagem de programação Python. Permite gerenciar feature flags, incluindo criação, edição, remoção, toggle e histórico de uso (timestamps), a nível de código.
+NAME
+    openflag
 
+CLASSES
+    builtins.object
+        OpenFlag
+        OpenFlagConnection
 
-## 🚀 Quick Start
-
-### **Instalação**
-
-```bash
-cd dist/
-pip install openflag-X.Y.Z.tar.gz
-```
-
-### **Exemplo de uso**
-
-```python
->>> from openflag import OpenFlag
-
->>> conn = OpenFlag()
->>> conn.list()
-[]
-
->>> conn.create("Flag", True, "This is an example.")
->>> conn.list()
-["Flag"]
-
->>> conn.check("Flag")
-{"name": "Flag", "value": True, "description": "This is an example.", "usage_log": [1000.0]}
-```
-
-### **Execução dos testes**
-
-```bash
-pip install -r tests/requirements.txt
-pytest tests/
-```
-
-## 📁 Estrutura do projeto
-
-```
-sdk/
-│── dist/            # Pacote instalável
-│── src/             # Código-fonte
-│── tests/           # Testes de unidade (pytest)
-│── LICENSE          # Licença de uso (MIT)
-│── pyproject.toml   # Configurações do projeto
-│── README.md        # Esta documentação
-```
-
-## ⚙️ API Reference
-    class OpenFlag()
+    class OpenFlag(builtins.object)
      |  OpenFlag(host: str = 'localhost', port: int = 8000)
      |
      |  SDK for the OpenFlag flag management application.
      |
-     |  ----------------------------------------------------------------------
+     |  Methods defined here:
+     |
+     |  __init__(self, host: str = 'localhost', port: int = 8000)
+     |      Initialize self.  See help(type(self)) for accurate signature.
      |
      |  check(self, name: str)
      |      Returns the current value of the given flag.
@@ -65,8 +27,6 @@ sdk/
      |      (bool): The value of the flag
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
-     |
-     |  ----------------------------------------------------------------------
      |
      |  create(self, name: str, value: bool, description: str)
      |      Creates a new flag.
@@ -80,16 +40,12 @@ sdk/
      |      -2 (int): Flag already exists
      |      -3 (int): Unknown error
      |
-     |  ----------------------------------------------------------------------
-     |
      |  list(self)
      |      Returns a list of all flags stored in the system.
      |
      |      Returns:
      |      list(str): List with names of stored flags
      |      -3 (int): Unknown error
-     |
-     |  ----------------------------------------------------------------------
      |
      |  remove(self, name: str)
      |      Excludes the given flag.
@@ -101,8 +57,6 @@ sdk/
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
      |
-     |  ----------------------------------------------------------------------
-     |
      |  toggle(self, name: str)
      |      Toggles the value (on/off) of the given flag.
      |
@@ -112,8 +66,6 @@ sdk/
      |      0 (int): Success
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
-     |
-     |  ----------------------------------------------------------------------
      |
      |  update(self, name: str, new_name: str, new_description: str)
      |      Updates the name and/or description of the given flag.
@@ -128,3 +80,43 @@ sdk/
      |      -3 (int): Unknown error
      |
      |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+
+    class OpenFlagConnection(builtins.object)
+     |  OpenFlagConnection(host: str, port: int)
+     |
+     |  Wrapper around the requests library.
+     |  Establishes a connection with the OpenFlag server.
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self, host: str, port: int)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  delete(self, route: str)
+     |
+     |  get(self, route: str)
+     |
+     |  post(self, route: str, body: dict = {})
+     |
+     |  put(self, route: str, body: dict = {})
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+
+FILE
+    /home/bereis01/Personal/UFMG/Projects/MES/open-flag/.venv/lib/python3.12/site-packages/openflag.py
+
+

@@ -14,3 +14,7 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/Ga-Alves/open-flag"
+Issues = "https://github.com/Ga-Alves/open-flag/issues"
