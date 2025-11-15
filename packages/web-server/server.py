@@ -1,8 +1,8 @@
 from datetime import datetime
 from db import Storage
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware  # ADICIONE ESTA LINHA
+from fastapi import FastAPI, HTTPException, status, Depends, Header, APIRouter
+from fastapi.middleware.cors import CORSMiddleware 
 
 # Creates connection with storage
 storage = Storage()
@@ -17,13 +17,12 @@ error_codes = {
 # Declares the REST API server.
 app = FastAPI()
 
-# ADICIONE ESTA CONFIGURAÇÃO CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # URL do seu frontend
+    allow_origins=["http://localhost:5173"], 
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos os métodos (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # Permite todos os headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Request body definitions
@@ -36,7 +35,45 @@ class FlagUpdateRequest(BaseModel):
     name: str
     description: str
 
-# Route definitions
+class UserCreateRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class UserUpdateRequest(BaseModel):
+    name: str
+    email: str
+    password: str | None = None
+
+
+# ============================ PRE HANDLER ============================
+def auth_required(authorization: str = Header(None)):
+    """
+    Dependency que valida o JWT. 
+    Roda antes da rota (pre-handler).
+    """
+    if authorization is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing Authorization header"
+        )
+
+    token = authorization.replace("Bearer ", "")
+
+    try:
+        payload = storage.validate_token(token)
+        return payload  # Pode ser usado dentro da rota se quiser
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+
+# protected = APIRouter(prefix="", dependencies=[Depends(auth_required)])
+# app.include_router(protected)
+
+# ============================ USER ROUTES ============================
+
 @app.get("/flags")
 def get_flags():
     """
@@ -57,7 +94,7 @@ def get_flags():
     
     return formatted_flags
 
-@app.post("/flags", status_code=status.HTTP_201_CREATED)
+@app.post("/flags", status_code=status.HTTP_201_CREATED, dependencies=[Depends(auth_required)])
 def create_flag(request: FlagCreationRequest):
     """
     Creates a new flag.
@@ -77,7 +114,7 @@ def create_flag(request: FlagCreationRequest):
 
     return request
 
-@app.put("/flags/{name}", status_code=status.HTTP_200_OK)
+@app.put("/flags/{name}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_required)])
 def update_flag(name:str, request: FlagUpdateRequest):
     """
     Updates a given flag.
@@ -96,7 +133,7 @@ def update_flag(name:str, request: FlagUpdateRequest):
 
     return request
 
-@app.put("/flags/{name}/toggle", status_code=status.HTTP_200_OK)
+@app.put("/flags/{name}/toggle", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_required)])
 def toggle_flag(name: str):
     """
     Toggles the value of a given flag (true/false).
@@ -129,7 +166,7 @@ def check_flag_status(name: str):
 
     return res
 
-@app.delete("/flags/{name}", status_code=status.HTTP_200_OK)
+@app.delete("/flags/{name}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_required)])
 def remove_flag(name: str):
     """
     Removes the given flag.
@@ -144,3 +181,95 @@ def remove_flag(name: str):
         )
 
     return name
+
+# ============================ USER ROUTES ============================
+
+@app.get("/users", status_code=status.HTTP_200_OK)
+def list_users():
+    code, users = storage.list_users()
+
+    if code != 0:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error listing users"
+        )
+
+    return users
+
+
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(request: UserCreateRequest):
+    code, _ = storage.create_user(
+        name=request.name,
+        email=request.email,
+        password=request.password
+    )
+
+    if code != 0:
+        error = error_codes[code]
+        raise HTTPException(status_code=error[0], detail=error[1])
+
+    return request
+
+
+@app.get("/users/{user_id}", status_code=status.HTTP_200_OK)
+def get_user(user_id: int):
+    code, user = storage.get_user(user_id=user_id)
+
+    if code != 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found!"
+        )
+
+    return user
+
+
+@app.put("/users/{user_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_required)])
+def update_user(user_id: int, request: UserUpdateRequest):
+    code, _ = storage.update_user(
+        user_id=user_id,
+        name=request.name,
+        email=request.email,
+        password=request.password
+    )
+
+    if code != 0:
+        error = error_codes[code]
+        raise HTTPException(status_code=error[0], detail=error[1])
+
+    return request
+
+
+@app.delete("/users/{user_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_required)])
+def delete_user(user_id: int):
+    code, _ = storage.delete_user(user_id)
+
+    if code != 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found!"
+        )
+
+    return {"message": f"User {user_id} deleted successfully"}
+
+# ===================== AUTH ROUTES =======================
+
+@app.post("/login")
+def login(data: dict):
+    try:
+        token = storage.login(data["email"], data["password"])
+        return {"token": token}
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+
+@app.get("/me")
+def get_me(authorization: str = Header(...)):
+    token = authorization.replace("Bearer ", "")
+    print(token)
+    try:
+        payload = storage.validate_token(token)
+        return {"user_id": payload["sub"], "email": payload["email"]}
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid token")
