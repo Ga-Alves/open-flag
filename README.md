@@ -27,7 +27,7 @@
 A seguir, tem-se uma lista das principais *features* disponíveis na plataforma.
 
 - Interface para criação de conta de usuário;
-- Interface para acesso às **feature flags** associada a uma conta de usuário;
+- Interface para acesso às *feature flags* associada a uma conta de usuário;
 - Criação, remoção, atualização e verificação do status de *feature flags*;
 - Gerência das *feature flags* via interface gráfica web e via SDK a nível de código;
 - Rastreamento da utilização das *feature flags*;
