@@ -35,7 +35,7 @@ export function Analytics(props: AnalyticsProps) {
         <div className="mt-4 text-black">
             <div className="flex gap-1 flex-wrap mb-4">
                 <Chip
-                    label='All History'
+                    label="All History"
                     color={!selectedDate ? 'primary' : 'default'}
                     onClick={handleShowAllHistory}
                 />
@@ -52,7 +52,7 @@ export function Analytics(props: AnalyticsProps) {
             {selectedDate && (
                 <div className="mb-4">
                     <h3 className="text-lg font-semibold mb-2">
-                        Comportamento no dia {selectedDate}
+                        Behavior on {selectedDate}
                     </h3>
                 </div>
             )}
@@ -62,16 +62,16 @@ export function Analytics(props: AnalyticsProps) {
                     {
                         data: hourlyData ? hourlyData.seriesData : seriesData,
                         area: true,
-                        label: hourlyData ? 'Uso por hora' : 'Uso por dia'
+                        label: hourlyData ? 'Usage by hour' : 'Usage by day'
                     },
                 ]}
                 xAxis={[{
                     data: hourlyData ? hourlyData.xAxisData : xAxisData,
                     scaleType: 'point',
-                    label: hourlyData ? 'Horas do dia' : 'Dias'
+                    label: hourlyData ? 'Time of day' : 'Days'
                 }]}
                 yAxis={[{
-                    label: hourlyData ? 'Quantidade de usos por hora' : 'Quantidade de usos por dia'
+                    label: hourlyData ? 'Usage count per hour' : 'Usage count per day'
                 }]}
                 height={300}
             />
