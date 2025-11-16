@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from db import Storage
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, status, Depends, Header, APIRouter
@@ -88,7 +89,7 @@ def get_flags():
             "name": flag["name"],
             "value": flag["value"],
             "description": flag["description"],
-            "usage_timestamps": flag["usage_log"],
+            "usage_timestamps": json.loads( flag["usage_log"]),
         }
         formatted_flags.append(flag_data)
     
