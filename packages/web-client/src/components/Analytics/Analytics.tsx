@@ -81,7 +81,6 @@ export function Analytics(props: AnalyticsProps) {
 
 function generateChartData(usageTimeStamps: number[]): ChartData {
     const dailyCount: { [key: string]: number } = {};
-    console.log({usageTimeStamps});
     
     usageTimeStamps.forEach(timestamp => {
         const date = new Date(timestamp * 1000);
