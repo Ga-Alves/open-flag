@@ -77,6 +77,15 @@ def test_create_existent_flag():
     assert result == -2
 
 
+def test_create_new_flag_not_logged():
+    openflag = OpenFlag()
+    openflag._conn.post = Mock(return_value=(401, {}))
+
+    result = openflag.create("New Flag", True, "This is a test flag.")
+
+    assert result == -4
+
+
 def test_update_existent_flag():
     openflag = OpenFlag()
     openflag._conn.put = Mock(return_value=(200, {}))
@@ -95,6 +104,15 @@ def test_update_nonexistent_flag():
     assert result == -1
 
 
+def test_update_flag_not_logged():
+    openflag = OpenFlag()
+    openflag._conn.put = Mock(return_value=(401, {}))
+
+    result = openflag.update("Flag", "Name", "Description")
+
+    assert result == -4
+
+
 def test_toggle_existent_flag():
     openflag = OpenFlag()
     openflag._conn.put = Mock(return_value=(200, {}))
@@ -111,6 +129,15 @@ def test_toggle_nonexistent_flag():
     result = openflag.toggle("Non-existent Flag")
 
     assert result == -1
+
+
+def test_toggle_flag_not_logged():
+    openflag = OpenFlag()
+    openflag._conn.put = Mock(return_value=(401, {}))
+
+    result = openflag.toggle("Flag")
+
+    assert result == -4
 
 
 def test_check_existent_flag():
@@ -150,3 +177,12 @@ def test_remove_nonexistent_flag():
     result = openflag.remove("Non-existent Flag")
 
     assert result == -1
+
+
+def test_remove_flag_not_logged():
+    openflag = OpenFlag()
+    openflag._conn.delete = Mock(return_value=(401, {}))
+
+    result = openflag.remove("Flag")
+
+    assert result == -4
