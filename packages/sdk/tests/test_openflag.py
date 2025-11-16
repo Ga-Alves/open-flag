@@ -11,6 +11,54 @@ def test_list_flags():
     assert isinstance(flags, list)
 
 
+def test_login_correct_credentials():
+    openflag = OpenFlag()
+    openflag._conn.post = Mock(return_value=(200, {"token": "abc"}))
+
+    result = openflag.login(email="mock@mock.com", password="123")
+
+    assert result == 0
+    assert openflag._headers["Authorization"] == "Bearer abc"
+
+
+def test_login_incorrect_credentials():
+    openflag = OpenFlag()
+    openflag._conn.post = Mock(return_value=(401, {}))
+
+    result = openflag.login(email="mock@mock.com", password="123")
+
+    assert result == -4
+    assert openflag._headers["Authorization"] == ""
+
+
+def test_login_correct_credentials():
+    openflag = OpenFlag()
+    openflag._conn.post = Mock(return_value=(200, {"token": "abc"}))
+
+    result = openflag.login(email="mock@mock.com", password="123")
+
+    assert result == 0
+    assert openflag._headers["Authorization"] == "Bearer abc"
+
+
+def test_get_user_id_not_logged():
+    openflag = OpenFlag()
+    openflag._conn.get = Mock(return_value=(401, {}))
+
+    result = openflag.get_user_id()
+
+    assert result == -4
+
+
+def test_get_user_id_logged():
+    openflag = OpenFlag()
+    openflag._conn.get = Mock(return_value=(200, {"user_id": "4"}))
+
+    result = openflag.get_user_id()
+
+    assert result == 4
+
+
 def test_create_new_flag():
     openflag = OpenFlag()
     openflag._conn.post = Mock(return_value=(201, {}))

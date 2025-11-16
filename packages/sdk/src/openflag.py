@@ -8,28 +8,25 @@ class OpenFlagConnection:
     """
 
     def __init__(self, host: str, port: int):
-        self.host = host
-        self.port = str(port)
+        self.path = f"http://{host}:{port}/"
 
-        self.path = f"http://{self.host}:{self.port}/"
-
-    def get(self, route: str):
-        response = requests.get(f"{self.path}{route}")
+    def get(self, route: str, headers: dict = {}):
+        response = requests.get(f"{self.path}{route}", headers=headers)
         code, body = response.status_code, response.json()
         return code, body
 
-    def post(self, route: str, body: dict = {}):
-        response = requests.post(f"{self.path}{route}", json=body)
+    def post(self, route: str, body: dict = {}, headers: dict = {}):
+        response = requests.post(f"{self.path}{route}", json=body, headers=headers)
         code, body = response.status_code, response.json()
         return code, body
 
-    def put(self, route: str, body: dict = {}):
-        response = requests.put(f"{self.path}{route}", json=body)
+    def put(self, route: str, body: dict = {}, headers: dict = {}):
+        response = requests.put(f"{self.path}{route}", json=body, headers=headers)
         code, body = response.status_code, response.json()
         return code, body
 
-    def delete(self, route: str):
-        response = requests.delete(f"{self.path}{route}")
+    def delete(self, route: str, headers: dict = {}):
+        response = requests.delete(f"{self.path}{route}", headers=headers)
         code, body = response.status_code, response.json()
         return code, body
 
@@ -41,6 +38,58 @@ class OpenFlag:
 
     def __init__(self, host: str = "localhost", port: int = 8000):
         self._conn = OpenFlagConnection(host, port)
+        self._headers = {"Authorization": ""}
+
+    # ============================ AUTH FUNCTIONS ============================
+
+    def login(self, email: str, password: str):
+        """
+        Logs in to a user account.
+
+        - email (str): E-mail associated with the user account
+        - password (str): Password registered for the used account
+
+        Returns:
+        0 (int): Success
+        -3 (int): Unknown error
+        -4 (int): Invalid email or password
+        """
+        body = {"email": email, "password": password}
+        code, response = self._conn.post("login", body=body)
+
+        # Captures any errors
+        if code == 401:
+            return -4
+        if code != 200:
+            return -3
+
+        # Saves the authentication header
+        self._headers["Authorization"] = f"Bearer {response['token']}"
+
+        return 0
+
+    def get_user_id(self):
+        """
+        Returns the user ID associated with the logged account.
+
+        Returns:
+        ID (int): The ID associated with the logged user
+        -3 (int): Unknown error
+        -4 (int): Not logged in
+        """
+        code, response = self._conn.get("me", headers=self._headers)
+
+        # Captures any errors
+        if code == 401:
+            return -4
+        if code != 200:
+            return -3
+
+        return int(response["user_id"])
+
+    # ============================ USER FUNCTIONS ============================
+
+    # ============================ FLAG FUNCTIONS ============================
 
     def list(self):
         """
@@ -72,11 +121,14 @@ class OpenFlag:
         0 (int): Success
         -2 (int): Flag already exists
         -3 (int): Unknown error
+        -4 (int): Unauthorized access
         """
         body = {"name": name, "value": value, "description": description}
-        code, response = self._conn.post("flags", body)
+        code, response = self._conn.post("flags", body=body, headers=self._headers)
 
         # Captures any errors
+        if code == 401:
+            return -4
         if code == 500:
             return -2
         if code != 201:
@@ -96,11 +148,16 @@ class OpenFlag:
         0 (int): Success
         -1 (int): Flag not found
         -3 (int): Unknown error
+        -4 (int): Unauthorized access
         """
         body = {"name": new_name, "description": new_description}
-        code, response = self._conn.put(f"flags/{name}", body=body)
+        code, response = self._conn.put(
+            f"flags/{name}", body=body, headers=self._headers
+        )
 
         # Captures any errors
+        if code == 401:
+            return -4
         if code == 404:
             return -1
         if code != 200:
@@ -118,10 +175,13 @@ class OpenFlag:
         0 (int): Success
         -1 (int): Flag not found
         -3 (int): Unknown error
+        -4 (int): Unauthorized access
         """
-        code, response = self._conn.put(f"flags/{name}/toggle")
+        code, response = self._conn.put(f"flags/{name}/toggle", headers=self._headers)
 
         # Captures any errors
+        if code == 401:
+            return -4
         if code == 404:
             return -1
         if code != 200:
@@ -167,10 +227,13 @@ class OpenFlag:
         0 (int): Success
         -1 (int): Flag not found
         -3 (int): Unknown error
+        -4 (int): Unauthorized access
         """
-        code, response = self._conn.delete(f"flags/{name}")
+        code, response = self._conn.delete(f"flags/{name}", headers=self._headers)
 
         # Captures any errors
+        if code == 401:
+            return -4
         if code == 404:
             return -1
         if code != 200:
