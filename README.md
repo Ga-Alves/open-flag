@@ -14,7 +14,7 @@
   </p>
 </p>
 <div align="center">
-    <img src="https://github.com/bereis01/rpsl_web/actions/workflows/tests.yml/badge.svg">
+    <img src="https://github.com/Ga-Alves/open-flag/actions/workflows/tests.yml/badge.svg">
 </div>
 
 <!-- DESCRIPTION -->
