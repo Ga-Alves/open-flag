@@ -89,9 +89,135 @@ class OpenFlag:
 
     # ============================ USER FUNCTIONS ============================
 
+    def list_users(self):
+        """
+        Returns a list of all users registered in the system.
+
+        Returns:
+        list(str): List with names of registered users
+        -3 (int): Unknown error
+        """
+        code, response = self._conn.get("users")
+
+        # Captures any errors
+        if code != 200:
+            return -3
+        if not isinstance(response, list):
+            return -3
+
+        return response
+
+    def create_user(self, name: str, email: str, password: str):
+        """
+        Creates a new user.
+
+        - name (str): The name of the user
+        - email (str): The email address of the user
+        - password (str): The password of the user
+
+        Returns:
+        0 (int): Success
+        -2 (int): User already exists
+        -3 (int): Unknown error
+        -4 (int): Unauthorized access
+        """
+        body = {"name": name, "email": email, "password": password}
+        code, response = self._conn.post("users", body=body, headers=self._headers)
+
+        # Captures any errors
+        if code == 401:
+            return -4
+        if code == 500:
+            return -2
+        if code != 201:
+            return -3
+
+        return 0
+
+    def check_user(self, user_id: int):
+        """
+        Returns the data associated with the given user.
+
+        - user_id (int): The ID of the user to be checked
+
+        Returns:
+        (bool): The value of the flag
+        -1 (int): User not found
+        -3 (int): Unknown error
+        """
+        code, response = self._conn.get(f"users/{user_id}")
+
+        # Captures any errors
+        if code == 404:
+            return -1
+        if code != 200:
+            return -3
+
+        return response
+
+    def update_user(
+        self, user_id: int, new_name: str, new_email: str, new_password: str
+    ):
+        """
+        Updates the attributes of the given user.
+
+        - user_id (int): The name of the flag to be modified
+        - new_name (str): The new desired name
+        - new_email (str): The new desired e-mail
+        - new_password (str): The new desired password
+
+        Returns:
+        0 (int): Success
+        -1 (int): User not found
+        -3 (int): Unknown error
+        -4 (int): Unauthorized access
+        """
+        body = {
+            "new_name": new_name,
+            "new_email": new_email,
+            "new_password": new_password,
+        }
+        code, response = self._conn.put(
+            f"users/{user_id}", body=body, headers=self._headers
+        )
+
+        # Captures any errors
+        if code == 401:
+            return -4
+        if code == 404:
+            return -1
+        if code != 200:
+            return -3
+
+        return 0
+
+    def remove_user(self, user_id: int):
+        """
+        Excludes the given user.
+
+        - user_id (int): The ID of the user to be excluded
+
+        Returns:
+        0 (int): Success
+        -1 (int): User not found
+        -3 (int): Unknown error
+        -4 (int): Unauthorized access
+        """
+        code, response = self._conn.delete(f"users/{user_id}", headers=self._headers)
+
+        # Captures any errors
+        if code == 401:
+            return -4
+        if code == 404:
+            return -1
+        if code != 200:
+            return -3
+
+        return 0
+
     # ============================ FLAG FUNCTIONS ============================
 
-    def list(self):
+    def list_flags(self):
         """
         Returns a list of all flags stored in the system.
 
@@ -109,7 +235,7 @@ class OpenFlag:
 
         return response
 
-    def create(self, name: str, value: bool, description: str):
+    def create_flag(self, name: str, value: bool, description: str):
         """
         Creates a new flag.
 
@@ -136,7 +262,7 @@ class OpenFlag:
 
         return 0
 
-    def update(self, name: str, new_name: str, new_description: str):
+    def update_flag(self, name: str, new_name: str, new_description: str):
         """
         Updates the name and/or description of the given flag.
 
@@ -165,7 +291,7 @@ class OpenFlag:
 
         return 0
 
-    def toggle(self, name: str):
+    def toggle_flag(self, name: str):
         """
         Toggles the value (on/off) of the given flag.
 
@@ -189,14 +315,14 @@ class OpenFlag:
 
         return 0
 
-    def check(self, name: str):
+    def check_flag(self, name: str):
         """
         Returns the current value of the given flag.
 
         - name (str): The name of the flag to be checked
 
         Returns:
-        (bool): The value of the flag
+        (dict): The information associated with the flag
         -1 (int): Flag not found
         -3 (int): Unknown error
         """
@@ -208,16 +334,9 @@ class OpenFlag:
         if code != 200:
             return -3
 
-        # Formats the response
-        formatted = {}
-        formatted["name"] = response[0]
-        formatted["value"] = response[1]
-        formatted["description"] = response[2]
-        formatted["usage_log"] = response[3]
+        return response
 
-        return formatted
-
-    def remove(self, name: str):
+    def remove_flag(self, name: str):
         """
         Excludes the given flag.
 
