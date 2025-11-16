@@ -6,7 +6,7 @@ import add from "../../assets/add-square.svg";
 
 export default function FeatureFlagList() {
   const { data, deleteFlag, updateFlag, toggleFlag, createFlag } = useFeatureFlags();
-
+  
   return (
     <>
       <div className="flex justify-between items-center">
@@ -42,6 +42,7 @@ export default function FeatureFlagList() {
             deleteFlag={deleteFlag}
             updateFlag={updateFlag}
             toggleFlag={toggleFlag}
+            usageTimeStamps={flag.usage_timestamps}
           />
         ))}
       </ul>
