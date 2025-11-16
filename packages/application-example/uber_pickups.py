@@ -24,7 +24,7 @@ data = load_data(10000)
 data_load_state.text("Done! (using st.cache_data)")
 
 
-showRawData = conn.check_flag('string')['value']
+showRawData = conn.check_flag('Show Raw Data')['value']
 st.write(f'The Feature flag **Show Raw Data** is {'on' if showRawData else 'off'} now!')
 
 if showRawData:
