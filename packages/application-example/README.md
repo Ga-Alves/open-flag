@@ -1,4 +1,4 @@
-# Example of an usage of Open Flag
+# Example of Open Flag SDK usage
 
 ## Install application requirements
 ```bash
