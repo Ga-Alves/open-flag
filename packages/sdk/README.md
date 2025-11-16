@@ -56,19 +56,31 @@ sdk/
      |
      |  ----------------------------------------------------------------------
      |
-     |  check(self, name: str)
+     |  check_flag(self, name: str)
      |      Returns the current value of the given flag.
      |
      |      - name (str): The name of the flag to be checked
      |
      |      Returns:
-     |      (bool): The value of the flag
+     |      (dict): The information associated with the flag
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
      |
      |  ----------------------------------------------------------------------
      |
-     |  create(self, name: str, value: bool, description: str)
+     |  check_user(self, user_id: int)
+     |      Returns the data associated with the given user.
+     |
+     |      - user_id (int): The ID of the user to be checked
+     |
+     |      Returns:
+     |      (bool): The value of the flag
+     |      -1 (int): User not found
+     |      -3 (int): Unknown error
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  create_flag(self, name: str, value: bool, description: str)
      |      Creates a new flag.
      |
      |      - name (str): The name of the flag
@@ -79,10 +91,36 @@ sdk/
      |      0 (int): Success
      |      -2 (int): Flag already exists
      |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
      |
      |  ----------------------------------------------------------------------
      |
-     |  list(self)
+     |  create_user(self, name: str, email: str, password: str)
+     |      Creates a new user.
+     |
+     |      - name (str): The name of the user
+     |      - email (str): The email address of the user
+     |      - password (str): The password of the user
+     |
+     |      Returns:
+     |      0 (int): Success
+     |      -2 (int): User already exists
+     |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  get_user_id(self)
+     |      Returns the user ID associated with the logged account.
+     |
+     |      Returns:
+     |      ID (int): The ID associated with the logged user
+     |      -3 (int): Unknown error
+     |      -4 (int): Not logged in
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  list_flags(self)
      |      Returns a list of all flags stored in the system.
      |
      |      Returns:
@@ -91,7 +129,29 @@ sdk/
      |
      |  ----------------------------------------------------------------------
      |
-     |  remove(self, name: str)
+     |  list_users(self)
+     |      Returns a list of all users registered in the system.
+     |
+     |      Returns:
+     |      list(str): List with names of registered users
+     |      -3 (int): Unknown error
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  login(self, email: str, password: str)
+     |      Logs in to a user account.
+     |
+     |      - email (str): E-mail associated with the user account
+     |      - password (str): Password registered for the used account
+     |
+     |      Returns:
+     |      0 (int): Success
+     |      -3 (int): Unknown error
+     |      -4 (int): Invalid email or password
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  remove_flag(self, name: str)
      |      Excludes the given flag.
      |
      |      - name (str): The name of the flag to be excluded
@@ -100,10 +160,24 @@ sdk/
      |      0 (int): Success
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
      |
      |  ----------------------------------------------------------------------
      |
-     |  toggle(self, name: str)
+     |  remove_user(self, user_id: int)
+     |      Excludes the given user.
+     |
+     |      - user_id (int): The ID of the user to be excluded
+     |
+     |      Returns:
+     |      0 (int): Success
+     |      -1 (int): User not found
+     |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  toggle_flag(self, name: str)
      |      Toggles the value (on/off) of the given flag.
      |
      |      - name (str): The name of the flag to be toggled
@@ -112,10 +186,11 @@ sdk/
      |      0 (int): Success
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
      |
      |  ----------------------------------------------------------------------
      |
-     |  update(self, name: str, new_name: str, new_description: str)
+     |  update_flag(self, name: str, new_name: str, new_description: str)
      |      Updates the name and/or description of the given flag.
      |
      |      - name (str): The name of the flag to be modified
@@ -126,5 +201,22 @@ sdk/
      |      0 (int): Success
      |      -1 (int): Flag not found
      |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
+     |
+     |  ----------------------------------------------------------------------
+     |
+     |  update_user(self, user_id: int, new_name: str, new_email: str, new_password: str)
+     |      Updates the attributes of the given user.
+     |
+     |      - user_id (int): The name of the flag to be modified
+     |      - new_name (str): The new desired name
+     |      - new_email (str): The new desired e-mail
+     |      - new_password (str): The new desired password
+     |
+     |      Returns:
+     |      0 (int): Success
+     |      -1 (int): User not found
+     |      -3 (int): Unknown error
+     |      -4 (int): Unauthorized access
      |
      |  ----------------------------------------------------------------------
