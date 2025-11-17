@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { api } from "../utils/api-client";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../utils/api-client";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,9 +10,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ===============================================================
-  // HANDLE LOGIN
-  // ===============================================================
+  // Se já estiver logado, redireciona para "/"
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -25,10 +30,10 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("email", email);
 
-      // Redireciona para o dashboard
       navigate("/");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+    } catch (err) {
+      setError("Email ou senha inválidos.");
+      setPassword(""); // limpa somente a senha
     }
 
     setLoading(false);
@@ -36,17 +41,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 dark:from-[#0f172a] dark:to-[#1e293b]">
+
       <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 shadow-xl rounded-2xl w-full max-w-md p-10">
 
-        {/* Title */}
         <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-400 text-center mb-6">
           Login
         </h1>
 
-        {/* Form */}
         <form onSubmit={handleLogin} className="flex flex-col gap-5">
 
-          {/* Email */}
           <input
             type="email"
             required
@@ -56,7 +59,6 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          {/* Password */}
           <input
             type="password"
             required
@@ -66,14 +68,12 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {/* Error message */}
           {error && (
             <p className="text-red-500 text-sm font-medium text-center">
               {error}
             </p>
           )}
 
-          {/* Submit button */}
           <button
             type="submit"
             className={`w-full py-2 rounded-md text-white font-medium transition ${
@@ -82,19 +82,10 @@ export default function Login() {
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Entrando..." : "Entrar"}
           </button>
 
-          {/* Go to Register */}
-          <button
-            type="button"
-            onClick={() => navigate("/register")}
-            className="w-full py-2 rounded-md font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-          >
-            Create New Account
-          </button>
         </form>
-
       </div>
     </div>
   );
