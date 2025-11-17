@@ -25,7 +25,7 @@ export class ApiClient {
 
   constructor() {
     this.baseUrl =
-      import.meta.env.VITE_SERVER_BASE_URL || "http://localhost:3000";
+      (import.meta as any).env.VITE_SERVER_BASE_URL || "http://localhost:3000";
   }
 
   /**
@@ -143,3 +143,15 @@ export class ApiClient {
 }
 
 export const api = new ApiClient();
+
+/**
+ * Compatibilidade com código antigo.
+ * Agora FeatureFlagClient apenas usa api internamente.
+ */
+export class FeatureFlagClient {
+  listAllFlags = api.listAllFlags.bind(api);
+  createFlag = api.createFlag.bind(api);
+  updateFlag = api.updateFlag.bind(api);
+  deleteFlag = api.deleteFlag.bind(api);
+  toggleFlag = api.toggleFlag.bind(api);
+}

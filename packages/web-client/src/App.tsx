@@ -1,14 +1,22 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import FeatureFlagList from "./components/FeatureFlagList/FeatureFlagList";
 import Header from "./components/Header/Header";
 
 export default function App() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("email");
-    window.location.href = "/login";
+    navigate("/login");
   }
 
   return (
@@ -24,8 +32,6 @@ export default function App() {
           </h1>
 
           <div className="flex gap-3">
-
-            {/* Botão para criar usuário */}
             <button
               onClick={() => navigate("/register")}
               className="px-4 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-md transition"
@@ -33,7 +39,6 @@ export default function App() {
               Create User
             </button>
 
-            {/* Botão de logout */}
             <button
               onClick={logout}
               className="px-4 py-2 rounded-md font-medium bg-red-600 text-white hover:bg-red-700 shadow-md transition"
@@ -43,7 +48,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Lista de Feature Flags */}
         <FeatureFlagList />
       </main>
     </div>
