@@ -1,43 +1,103 @@
 import type {
-  CreateFlagRequest,
   FeatureFlag,
+  CreateFlagRequest,
   UpdateFlagRequest,
 } from "../types/types";
-export class FeatureFlagClient {
+
+/**
+ * Headers de autenticação.
+ * Sempre retorna um Record<string, string> seguro.
+ */
+function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return {};
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export class ApiClient {
   private baseUrl: string;
-  private token: string;
 
   constructor() {
-    const baseUrl =
+    this.baseUrl =
       import.meta.env.VITE_SERVER_BASE_URL || "http://localhost:3000";
-    this.baseUrl = baseUrl;
-    this.token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZW1haWwiOiJnYWJyaWVsQGdtYWlsLmNvbSIsImV4cCI6MTc2MzQxMzA5M30.uBZTR-fJOcVTkV661fa2IXycirdqC_GmuHShaVI9Kkk";
   }
 
-  private getAuthHeaders() {
-    return {
-      Authorization: `Bearer ${this.token}`,
+  /**
+   * Wrapper para TODAS as requisições HTTP.
+   */
+  private async request(url: string, options: RequestInit = {}) {
+    const finalHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...authHeaders(),
+      ...(options.headers as Record<string, string> | undefined),
     };
+
+    const response = await fetch(url, {
+      ...options,
+      headers: finalHeaders,
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("email");
+      window.location.href = "/login";
+      throw new Error("Unauthorized – token expired or invalid");
+    }
+
+    return response;
   }
+
+  // ===============================================================
+  // LOGIN
+  // ===============================================================
+  async login(email: string, password: string) {
+    const res = await this.request(`${this.baseUrl}/login`, {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) throw new Error("Invalid email or password");
+
+    return res.json();
+  }
+
+  // ===============================================================
+  // USER REGISTRATION
+  // ===============================================================
+  async register(name: string, email: string, password: string) {
+    const res = await this.request(`${this.baseUrl}/users`, {
+      method: "POST",
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    if (!res.ok) throw new Error("Failed to register user");
+
+    return res.json();
+  }
+
+  // ===============================================================
+  // FLAGS
+  // ===============================================================
 
   async listAllFlags(): Promise<FeatureFlag[]> {
-    const response = await fetch(`${this.baseUrl}/flags`);
+    const response = await this.request(`${this.baseUrl}/flags`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch flags: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.json();
   }
 
   async createFlag(flagData: CreateFlagRequest) {
-    const response = await fetch(`${this.baseUrl}/flags`, {
+    const response = await this.request(`${this.baseUrl}/flags`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeaders(),
-      },
       body: JSON.stringify({ ...flagData, value: false }),
     });
 
@@ -47,12 +107,8 @@ export class FeatureFlagClient {
   }
 
   async updateFlag(name: string, flagData: UpdateFlagRequest) {
-    const response = await fetch(`${this.baseUrl}/flags/${name}`, {
+    const response = await this.request(`${this.baseUrl}/flags/${name}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeaders(),
-      },
       body: JSON.stringify(flagData),
     });
 
@@ -61,10 +117,9 @@ export class FeatureFlagClient {
     }
   }
 
-  async deleteFlag(id: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/flags/${id}`, {
+  async deleteFlag(name: string): Promise<void> {
+    const response = await this.request(`${this.baseUrl}/flags/${name}`, {
       method: "DELETE",
-      headers: this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -75,15 +130,16 @@ export class FeatureFlagClient {
   async toggleFlag(
     name: string
   ): Promise<{ message: string; new_value: boolean }> {
-    const response = await fetch(`${this.baseUrl}/flags/${name}/toggle`, {
+    const response = await this.request(`${this.baseUrl}/flags/${name}/toggle`, {
       method: "PUT",
-      headers: this.getAuthHeaders(),
     });
 
     if (!response.ok) {
       throw new Error(`Failed to toggle flag: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.json();
   }
 }
+
+export const api = new ApiClient();

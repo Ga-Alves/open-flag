@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api } from "../utils/api-client";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,23 +13,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Invalid email or password");
-      }
-
-      const data = await res.json();
+      const data = await api.login(email, password);
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("email", email);
 
       window.location.href = "/";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     }
