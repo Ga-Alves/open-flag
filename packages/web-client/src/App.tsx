@@ -6,7 +6,6 @@ import { api } from "./utils/api-client";
 
 export default function App() {
   const navigate = useNavigate();
-
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
   function logout() {
@@ -15,23 +14,15 @@ export default function App() {
     navigate("/login");
   }
 
-  // Carrega dados do usuário logado
   useEffect(() => {
     async function loadUser() {
       try {
-        const res = await fetch("http://localhost:3000/me", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+        const data = await api.me();
+
+        setUser({
+          name: data.name,
+          email: data.email,
         });
-
-        if (!res.ok) {
-          logout();
-          return;
-        }
-
-        const data = await res.json();
-        setUser({ name: data.name, email: data.email });
 
       } catch {
         logout();
@@ -65,8 +56,6 @@ export default function App() {
           <div />
 
           <div className="flex gap-3">
-
-            {/* Botão para criar usuário */}
             <button
               onClick={() => navigate("/register")}
               className="px-4 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-md transition"
@@ -74,7 +63,6 @@ export default function App() {
               Create User
             </button>
 
-            {/* Botão de logout */}
             <button
               onClick={logout}
               className="px-4 py-2 rounded-md font-medium bg-red-600 text-white hover:bg-red-700 shadow-md transition"
@@ -84,7 +72,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Lista de Feature Flags */}
         <FeatureFlagList />
       </main>
     </div>

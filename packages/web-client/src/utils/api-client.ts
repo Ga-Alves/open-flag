@@ -140,6 +140,15 @@ export class ApiClient {
 
     return response.json();
   }
+
+  async me() {
+    const res = await this.request(`${this.baseUrl}/me`);
+
+    if (!res.ok) throw new Error("Failed to load user profile");
+
+    return res.json();
+  }
+
 }
 
 export const api = new ApiClient();
