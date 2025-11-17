@@ -1,5 +1,4 @@
 import { useState } from "react";
-import logo from "../assets/logo.svg"; // use o seu logo ou remova essa linha
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,56 +11,58 @@ export default function Login() {
     setError("");
     setLoading(true);
 
-    // Simulação — substitua por sua lógica real de autenticação
-    await new Promise((r) => setTimeout(r, 1000));
+    try {
+      const res = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (email === "admin@openflag.dev" && password === "admin") {
-      alert("Login successful!");
-      // Redirecionar para a home (ex: usando react-router)
+      if (!res.ok) {
+        throw new Error("Invalid email or password");
+      }
+
+      const data = await res.json();
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("email", email);
+
       window.location.href = "/";
-    } else {
-      setError("Invalid credentials");
+    } catch (err: any) {
+      setError(err.message);
     }
+
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 dark:from-[#0f172a] dark:to-[#1e293b] transition-colors duration-300">
-      <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 shadow-2xl rounded-2xl w-full max-w-md p-10 animate-scaleIn">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
-          {logo && <img src={logo} alt="Open Flag Logo" className="w-16 mb-3" />}
-          <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-400">Open Flag</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Sign in to continue
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 dark:from-[#0f172a] dark:to-[#1e293b]">
 
-        {/* Formulário */}
+      <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 shadow-xl rounded-2xl w-full max-w-md p-10">
+
+        <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-400 text-center mb-6">
+          Login
+        </h1>
+
         <form onSubmit={handleLogin} className="flex flex-col gap-5">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              className="w-full border rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="w-full border rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
+          <input
+            type="email"
+            required
+            placeholder="email@example.com"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            type="password"
+            required
+            placeholder="********"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           {error && (
             <p className="text-red-500 text-sm font-medium text-center">{error}</p>
@@ -69,8 +70,7 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={loading}
-            className={`w-full py-2 rounded-md font-medium text-white transition-all shadow-md ${
+            className={`w-full py-2 rounded-md text-white font-medium transition ${
               loading
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
@@ -78,17 +78,8 @@ export default function Login() {
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
-        </form>
 
-        {/* Rodapé */}
-        <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>
-            Forgot your password?{" "}
-            <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
-              Reset it here
-            </a>
-          </p>
-        </div>
+        </form>
       </div>
     </div>
   );
