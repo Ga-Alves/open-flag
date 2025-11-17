@@ -268,9 +268,14 @@ def login(data: dict):
 @app.get("/me")
 def get_me(authorization: str = Header(...)):
     token = authorization.replace("Bearer ", "")
-    print(token)
     try:
         payload = storage.validate_token(token)
-        return {"user_id": payload["sub"], "email": payload["email"]}
+        code, user = storage.get_user(email=payload["email"])
+
+        if code != 0:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {"id": user["id"], "name": user["name"], "email": user["email"]}
+
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid token")
