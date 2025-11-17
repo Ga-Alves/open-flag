@@ -39,6 +39,7 @@ export default function Register() {
       setPassword("");
       setConfirmPassword("");
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     }

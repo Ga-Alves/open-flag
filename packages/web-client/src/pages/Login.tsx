@@ -28,6 +28,7 @@ export default function Login() {
       localStorage.setItem("email", email);
 
       window.location.href = "/";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     }

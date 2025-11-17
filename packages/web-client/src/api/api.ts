@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function apiFetch(url: string, options: any = {}) {
   const token = localStorage.getItem("token");
 
